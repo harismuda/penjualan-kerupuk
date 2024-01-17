@@ -27,5 +27,7 @@ Route::middleware(['auth'])->group(
     function () {
         Route::get('/dashboar', [AdminController::class, 'index']);
         Route::get('/activity', [AdminController::class, 'history']);
+        Route::get('/kerupuk', [AdminController::class, 'kerupuk']);
+        Route::get('/sell', [AdminController::class, 'sell']);
     }
 );

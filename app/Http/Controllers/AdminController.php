@@ -13,4 +13,12 @@ class AdminController extends Controller
     public function history() {
         return view('admin.activity');
     }
+
+    public function kerupuk() {
+        return view('admin.kerupuk');
+    }
+
+    public function sell() {
+        return view('admin.sell');
+    }
 }
