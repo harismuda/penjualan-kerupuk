@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Kerupuk;
+use App\Models\Transaksi;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -110,6 +111,31 @@ class AdminController extends Controller
     }
 
     public function transaksi() {
-        return view('admin.transaksi');
+        $kerupuk = Kerupuk::get();
+        $transaksi = Transaksi::select('*')
+        ->join('kerupuk', 'kerupuk.kerupukID', '=', 'transaksi.kerupukID')
+        ->get();
+        return view('admin.transaksi', compact('transaksi','kerupuk'));
+    }
+
+    public function store_transaksi(Request $request){
+        $request->validate([
+            'qty' => 'required|numeric',
+        ]);
+
+        Transaksi::insert([
+            'kerupukID' => $request->kerupukID,
+            'qty' => $request->qty,
+            'created_at' => date('Y-m-d H:i:s')
+        ]);
+
+        $kerupuk = Kerupuk::find($request->kerupukID);
+
+        if ($kerupuk) {
+            $kerupuk->stok -= $request->qty;
+            $kerupuk->save();
+        }
+
+        return redirect()->back()->with('success', 'Data transaksi berhasil ditambahkan.');
     }
 }

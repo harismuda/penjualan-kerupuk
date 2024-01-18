@@ -32,5 +32,6 @@ Route::middleware(['auth'])->group(
         Route::put('/update_kerupuk', [AdminController::class, 'update']);
         Route::get('/kerupuk/delete/{id}', [AdminController::class, 'destroy']);
         Route::get('/transaksi', [AdminController::class, 'transaksi']);
+        Route::post('/store_transaksi', [AdminController::class, 'store_transaksi']);
     }
 );
