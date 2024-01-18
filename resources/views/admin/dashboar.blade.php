@@ -6,7 +6,7 @@
                     <p>Penjualan</p>
                 </div>
                 <div class="card-body">
-                    <canvas id="myChart"></canvas>
+                    <canvas id="myChart" width="100%" height="50%"></canvas>
                 </div>
             </div>
             <div class="card col-md-4 m-1" style="width: 39%">
@@ -14,7 +14,7 @@
                     Day Profit
                 </div>
                 <div class="card-body">
-                    <canvas id="Pie"></canvas>
+                    
                 </div>
             </div>
         </div>
