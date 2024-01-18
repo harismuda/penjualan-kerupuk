@@ -29,6 +29,7 @@ Route::middleware(['auth'])->group(
         Route::get('/activity', [AdminController::class, 'history']);
         Route::get('/kerupuk', [AdminController::class, 'kerupuk']);
         Route::post('/store_kerupuk', [AdminController::class, 'store']);
+        Route::put('/update_kerupuk', [AdminController::class, 'update']);
         Route::get('/kerupuk/delete/{id}', [AdminController::class, 'destroy']);
         Route::get('/transaksi', [AdminController::class, 'transaksi']);
     }
