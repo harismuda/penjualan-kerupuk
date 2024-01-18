@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Kerupuk;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -12,8 +11,9 @@ class AdminController extends Controller
         return view('admin.dashboar');
     }
 
-    public function history() {
-        return view('admin.activity');
+    public function history($order = 'desc') {
+        $kerupuk = Kerupuk::orderBy('kerupukID', $order)->get();
+        return view('admin.activity', compact('kerupuk'));
     }
 
     public function kerupuk($order = 'asc') {
@@ -59,10 +59,10 @@ class AdminController extends Controller
             return redirect()->back()->with('error', 'Kerupuk not found.');
         }
 
-        $imagePath = $kerupuk->gambar_barang;
+        $imagePath = public_path('gambar_barang/' . $kerupuk->gambar_barang);
 
-        if (Storage::disk('public')->exists($imagePath)) {
-            Storage::disk('public')->delete($imagePath);
+        if (file_exists($imagePath)) {
+            unlink($imagePath);
         }
 
         $kerupuk->delete();
@@ -70,7 +70,7 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Data barang berhasil dihapus.');
     }
 
-    public function sell() {
-        return view('admin.sell');
+    public function transaksi() {
+        return view('admin.transaksi');
     }
 }

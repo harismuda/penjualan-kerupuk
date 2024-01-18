@@ -30,6 +30,6 @@ Route::middleware(['auth'])->group(
         Route::get('/kerupuk', [AdminController::class, 'kerupuk']);
         Route::post('/store_kerupuk', [AdminController::class, 'store']);
         Route::get('/kerupuk/delete/{id}', [AdminController::class, 'destroy']);
-        Route::get('/sell', [AdminController::class, 'sell']);
+        Route::get('/transaksi', [AdminController::class, 'transaksi']);
     }
 );

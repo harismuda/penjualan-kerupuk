@@ -29,11 +29,11 @@
                     <span class="mx-2">Kerupuk</span>
                 </li>
             </a>
-            <a href="{{ url('/sell') }}"
+            <a href="{{ url('/transaksi') }}"
                 class="nav-link text-white {{ request()->routeIs('/activity') ? 'active' : '' }}">
                 <li>
                     <iconify-icon icon="ep:sell"></iconify-icon>
-                    <span class="mx-2">Sell</span>
+                    <span class="mx-2">Transaksi</span>
                 </li>
             </a>
             <a href="{{ url('/activity') }}"
