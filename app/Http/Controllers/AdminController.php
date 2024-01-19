@@ -138,4 +138,33 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', 'Data transaksi berhasil ditambahkan.');
     }
+
+    public function update_transaksi(Request $request)
+    {
+        $request->validate([
+            'qty' => 'required|numeric',
+        ]);
+
+        $transaksi = Transaksi::find($request->id);
+
+        $oldQty = $transaksi->qty;
+
+        $transaksi->update([
+            'kerupukID' => $request->kerupukID,
+            'qty' => $request->qty,
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+
+        $kerupuk = Kerupuk::find($request->kerupukID);
+
+        if ($kerupuk) {
+            $newStok = $request->qty - $oldQty;
+            $kerupuk->stok -= $newStok;
+            $kerupuk->save();
+
+            echo $newStok;
+        }
+
+        return redirect()->back()->with('success', 'Data transaksi berhasil diperbarui.');
+    }
 }

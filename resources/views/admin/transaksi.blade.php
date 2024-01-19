@@ -5,7 +5,7 @@
             <div class="card-header bg-light">
                 <div class="row">
                     <div class="col-md-6 text-start">
-                        <h4>Table List Kerupuk</h4>
+                        <h4>Table Transaksi</h4>
                     </div>
                     <div class="col-md-6 text-end">
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#transaksiModal">
@@ -39,15 +39,11 @@
                                 <td>Rp. @currency($item->qty * $item->harga_jual)</td>
                                 <td>
                                     <button class="btn btn-warning btn-edit" data-bs-toggle="modal"
-                                        data-bs-target="#editModal" data-id="{{ $item->transaksiID }}"
-                                        data-kerupukID="{{ $item->kerupukID }}" data-qty="{{ $item->qty }}">
+                                        data-bs-target="#TransaksiEditModal" data-id="{{ $item->transaksiID }}"
+                                        data-kerupuk="{{ $item->kerupukID }}" data-qty="{{ $item->qty }}"
+                                        data-barang="{{ $item->nama_barang }}" data-harga="{{ $item->harga_jual }}">
                                         <iconify-icon icon="mingcute:edit-4-line"></iconify-icon>
                                     </button>
-
-                                    <a href="{{ url('/kerupuk/delete/' . $item->transaksiID) }}" class="btn btn-danger"
-                                        onclick="return confirm('Apa kamu yakin ingin mengahapusnya?')">
-                                        <iconify-icon icon="bi:trash-fill"></iconify-icon>
-                                    </a>
                                 </td>
                             </tr>
                         @endforeach
@@ -63,14 +59,45 @@
     $(document).ready(function() {
         $(document).on('click', '.btn-edit', function() {
             var id = $(this).data('id');
-            var kerupukID = $(this).data('kerupukID');
+            var kerupuk = $(this).data('kerupuk');
             var qty = $(this).data('qty');
+            var barang = $(this).data('barang');
+            var harga = $(this).data('harga');
 
-            console.log(id, kerupukID, qty);
+            console.log(id, kerupuk, qty, barang, harga);
+
+            var subtotal = harga * qty;
 
             $('#edit-id').val(id);
-            $('#edit-kerupukID').val(kerupukID);
-            $('#edit-qty').val(qty);
+            $('.edit-qty').val(qty);
+            $('.edit-namaBarang').val(barang);
+            $('#edit-harga').val(harga);
+            $('#edit-subtotal').val(subtotal);
+
+            $('#edit-kerupukID.edit-namaBarang').text(barang).val(kerupuk);
+
+            console.log('ID Transaksi : ', $('#edit-id').val())
+            console.log('ID Kerupuk : ', $('#edit-kerupukID').val())
+            console.log('QTY : ', $('.edit-qty').val())
+            console.log('Nama Kerupuk : ', $('.edit-namaBarang').val())
+
+            $('.edit-qty').on('input', function() {
+            updateSubtotal();
+            // updateStok();
+            });
+
+            function updateSubtotal() {
+                var newQty = parseInt($('.edit-qty').val()) || 0;
+                var newSubtotal = harga * newQty;
+                console.log('New Subtotal:', newSubtotal);
+                $('#edit-subtotal').val(newSubtotal);
+            }
+
+            // function updateStok() {
+            //     var newQty = parseInt($('.edit-qty').val()) || 0;
+            //     var newStok = newQty - qty;
+            //     console.log('QTY selisih = ', newStok)
+            // }
         });
     });
 </script>
@@ -90,7 +117,8 @@
                             <select name="kerupukID" id="kerupukSelect" class="form-control">
                                 <option>Pilih Barang</option>
                                 @foreach ($kerupuk as $item)
-                                    <option value="{{ $item->kerupukID }}" data-harga="{{ $item->harga_jual }}">{{ $item->nama_barang }}</option>
+                                    <option value="{{ $item->kerupukID }}" data-harga="{{ $item->harga_jual }}">
+                                        {{ $item->nama_barang }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -99,7 +127,8 @@
                         <label for="harga jual" class="col-form-label">Harga Jual</label>
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="basic-addon1">Rp. </span>
-                            <input type="number" class="form-control" aria-describedby="basic-addon1" id="harga_jual" name="harga_jual" readonly>
+                            <input type="number" class="form-control" aria-describedby="basic-addon1" id="harga_jual"
+                                name="harga_jual" readonly>
                         </div>
                     </div>
                     <div class="mb-3">
@@ -112,14 +141,62 @@
                         <label for="subtotal" class="col-form-label">Subtotal</label>
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="basic-addon1">Rp. </span>
-                            <input type="number" class="form-control" aria-describedby="basic-addon1" id="subtotal" name="subtotal" readonly>
+                            <input type="number" class="form-control" aria-describedby="basic-addon1" id="subtotal"
+                                name="subtotal" readonly>
                         </div>
                     </div>
                 </div>
-                <input type="hidden" value="Add Master Barang" name="activity">
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="transaksiEditModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Update Transaksi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url('/update_transaksi') }}" method="post" id="transaction">
+                @csrf @method('PUT')
+                <div class="modal-body">
+                    <input type="hidden" id="edit-id" name="id">
+                    <div class="mb-3">
+                        <div class="dropdown-form">
+                            <select name="kerupukID" id="kerupukSelect" class="form-control" readonly>
+                                <option id="edit-kerupukID" class="edit-namaBarang" value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="harga jual" class="col-form-label">Harga Jual</label>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="basic-addon1">Rp. </span>
+                            <input type="number" class="form-control" aria-describedby="basic-addon1" id="edit-harga" readonly>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="qty" class="col-form-label">QTY</label>
+                        <div class="input-group mb-3">
+                            <input type="number" class="form-control edit-qty" name="qty" id="qty" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subtotal" class="col-form-label">Subtotal</label>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="basic-addon1">Rp. </span>
+                            <input type="number" class="form-control" aria-describedby="basic-addon1" id="edit-subtotal" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Update</button>
                 </div>
             </form>
         </div>

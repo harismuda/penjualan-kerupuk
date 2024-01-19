@@ -26,12 +26,19 @@ Route::get('/logout', [AuthController::class, 'logout']);
 Route::middleware(['auth'])->group(
     function () {
         Route::get('/dashboar', [AdminController::class, 'index']);
+
+        //Activity
         Route::get('/activity', [AdminController::class, 'history']);
+
+        //Kerupuk
         Route::get('/kerupuk', [AdminController::class, 'kerupuk']);
         Route::post('/store_kerupuk', [AdminController::class, 'store']);
         Route::put('/update_kerupuk', [AdminController::class, 'update']);
         Route::get('/kerupuk/delete/{id}', [AdminController::class, 'destroy']);
+
+        //transaksi
         Route::get('/transaksi', [AdminController::class, 'transaksi']);
         Route::post('/store_transaksi', [AdminController::class, 'store_transaksi']);
+        Route::put('/update_transaksi', [AdminController::class, 'update_transaksi']);
     }
 );
