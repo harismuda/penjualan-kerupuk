@@ -236,15 +236,29 @@
 </script>
 
 <script>
-    $(document).ready(function() {
-    var table = $('#example').DataTable( {
+$(document).ready(function() {
+    var table = $('#example').DataTable({
         lengthChange: false,
-        buttons: ['excel', 'pdf', 'colvis' ]
-    } );
- 
-    table.buttons().container()
-        .appendTo( '#example_wrapper .col-md-6:eq(0)' );
-} );
+        buttons: [{
+            extend: 'excel',
+            text: 'Excel',
+            customizeData: function (excelData) {
+                for (var i = 0; i < excelData.body.length; i++) {
+                    excelData.body[i][2] = excelData.body[i][2].replace('Rp. ', '');
+                    excelData.body[i][2] = excelData.body[i][2].replace('.',''); //Ribuan
+                    excelData.body[i][2] = excelData.body[i][2].replace('.',''); //Jutaan
+                    excelData.body[i][2] = excelData.body[i][2].replace('.',''); //Miliaran
+                }
+
+                console.log('Modified Excel Data:', excelData);
+            }
+        }, 'pdf', 'colvis']
+    });
+
+    table.buttons().container().appendTo('#example_wrapper .col-md-6:eq(0)');
+});
+
+
 </script>
 <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
