@@ -18,7 +18,7 @@ class TransaksiController extends Controller
 
     public function store_transaksi(Request $request){
         $request->validate([
-            'qty' => 'required|numeric',
+            'qty' => ['required', 'numeric', 'min:0'],
         ]);
 
         Transaksi::insert([

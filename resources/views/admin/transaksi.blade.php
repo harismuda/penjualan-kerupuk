@@ -45,7 +45,7 @@
                                     <button class="btn btn-warning btn-edit" data-bs-toggle="modal"
                                         data-bs-target="#TransaksiEditModal" data-id="{{ $item->transaksiID }}"
                                         data-kerupuk="{{ $item->kerupukID }}" data-qty="{{ $item->qty }}"
-                                        data-barang="{{ $item->nama_barang }}" data-harga="{{ $item->harga_jual }}">
+                                        data-barang="{{ $item->nama_barang }}" data-harga="{{ $item->harga_jual }}" data-stok="{{ $item->stok }}">
                                         <iconify-icon icon="mingcute:edit-4-line"></iconify-icon>
                                     </button>
                                 </td>
@@ -67,8 +67,9 @@
             var qty = $(this).data('qty');
             var barang = $(this).data('barang');
             var harga = $(this).data('harga');
+            var stok = $(this).data('stok');
 
-            console.log(id, kerupuk, qty, barang, harga);
+            console.log(id, kerupuk, qty, barang, harga, stok);
 
             var subtotal = harga * qty;
 
@@ -80,18 +81,36 @@
 
             $('#edit-kerupukID.edit-namaBarang').text(barang).val(kerupuk);
 
+            $('.edit-qty').attr('max', stok);
+
             console.log('ID Transaksi : ', $('#edit-id').val())
             console.log('ID Kerupuk : ', $('#edit-kerupukID').val())
             console.log('QTY : ', $('.edit-qty').val())
             console.log('Nama Kerupuk : ', $('.edit-namaBarang').val())
 
             $('.edit-qty').on('input', function() {
+            var qtyValue = $(this).val();
+            var maxQty = parseInt($(this).attr('max'));
+
+            // Ensure qty is between 0 and maxQty (stock)
+            qtyValue = parseInt(qtyValue);
+
+            if (isNaN(qtyValue) || qtyValue < 0) {
+                qtyValue = 0;
+            } else if (qtyValue > maxQty) {
+                qtyValue = maxQty;
+            }
+
+            $(this).val(qtyValue);
+            console.log('Qty:', qtyValue);
             updateSubtotal();
-            // updateStok();
             });
 
             function updateSubtotal() {
                 var newQty = parseInt($('.edit-qty').val()) || 0;
+
+                newQty = Math.max(newQty, 0);
+
                 var newSubtotal = harga * newQty;
                 console.log('New Subtotal:', newSubtotal);
                 $('#edit-subtotal').val(newSubtotal);
@@ -121,7 +140,7 @@
                             <select name="kerupukID" id="kerupukSelect" class="form-control">
                                 <option>Pilih Barang</option>
                                 @foreach ($kerupuk as $item)
-                                    <option value="{{ $item->kerupukID }}" data-harga="{{ $item->harga_jual }}">
+                                    <option value="{{ $item->kerupukID }}" data-harga="{{ $item->harga_jual }}" data-stok="{{ $item->stok }}">
                                         {{ $item->nama_barang }}</option>
                                 @endforeach
                             </select>
@@ -138,7 +157,7 @@
                     <div class="mb-3">
                         <label for="qty" class="col-form-label">QTY</label>
                         <div class="input-group mb-3">
-                            <input type="number" class="form-control" name="qty" id="qty" required>
+                            <input type="number" class="form-control" name="qty" id="qty" required min="0">
                         </div>
                     </div>
                     <div class="mb-3">
@@ -187,7 +206,7 @@
                     <div class="mb-3">
                         <label for="qty" class="col-form-label">QTY</label>
                         <div class="input-group mb-3">
-                            <input type="number" class="form-control edit-qty" name="qty" id="qty" required>
+                            <input type="number" class="form-control edit-qty" name="qty" id="qty" required min="0">
                         </div>
                     </div>
                     <div class="mb-3">
@@ -210,22 +229,43 @@
     $(document).ready(function() {
         $('#kerupukSelect').change(function() {
             var selectedOption = $(this).find(':selected');
-            var harga = selectedOption.data('harga');
+            var harga = parseFloat(selectedOption.data('harga'));
+            var stok = parseInt(selectedOption.data('stok'));
+
+            console.log('stok:', stok);
 
             console.log('Harga:', harga);
             $('#harga_jual').val(harga);
+
+            // Set the maximum value for quantity based on available stock
+            $('#qty').attr('max', stok);
 
             updateSubtotal();
         });
 
         $('#qty').on('input', function() {
-            console.log('Qty:', $('#qty').val());
+            var qtyValue = $(this).val();
+            var maxQty = parseInt($(this).attr('max'));
+
+            // Ensure qty is between 0 and maxQty (stock)
+            qtyValue = parseInt(qtyValue);
+
+            if (isNaN(qtyValue) || qtyValue < 0) {
+                qtyValue = 0;
+            } else if (qtyValue > maxQty) {
+                qtyValue = maxQty;
+            }
+
+            $(this).val(qtyValue);
+            console.log('Qty:', qtyValue);
             updateSubtotal();
         });
 
         function updateSubtotal() {
             var harga = parseFloat($('#harga_jual').val()) || 0;
             var qty = parseInt($('#qty').val()) || 0;
+
+            qty = Math.max(qty, 0);
 
             var subtotal = harga * qty;
             console.log('Subtotal:', subtotal);
