@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TransaksiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -37,8 +38,9 @@ Route::middleware(['auth'])->group(
         Route::get('/kerupuk/delete/{id}', [AdminController::class, 'destroy']);
 
         //transaksi
-        Route::get('/transaksi', [AdminController::class, 'transaksi']);
-        Route::post('/store_transaksi', [AdminController::class, 'store_transaksi']);
-        Route::put('/update_transaksi', [AdminController::class, 'update_transaksi']);
+        Route::get('/get_transaksi', [TransaksiController::class, 'get_transaksi']);
+        Route::get('/transaksi', [TransaksiController::class, 'transaksi']);
+        Route::post('/store_transaksi', [TransaksiController::class, 'store_transaksi']);
+        Route::put('/update_transaksi', [TransaksiController::class, 'update_transaksi']);
     }
 );
