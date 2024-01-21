@@ -67,7 +67,9 @@ class TransaksiController extends Controller
     }
     public function get_transaksi()
     {
-        $data = Transaksi::get();
+        $data = Transaksi::select('transaksi.created_at', 'transaksi.qty', 'kerupuk.harga_jual')
+        ->join('kerupuk', 'kerupuk.kerupukID', '=', 'transaksi.kerupukID')
+        ->get();
         return response()->json($data);
     }
 }

@@ -15,7 +15,7 @@
                 Day Profit
             </div>
             <div class="card-body">
-
+                <canvas id="myPieChart"></canvas>
             </div>
         </div>
     </div>
@@ -23,5 +23,5 @@
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script src="{{ asset('desain') }}/js/bar.js"></script>
+<script src="{{ asset('desain') }}/js/pie.js"></script>
