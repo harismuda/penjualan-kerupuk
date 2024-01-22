@@ -35,13 +35,13 @@ class AuthController extends Controller
                 return redirect('/dashboar');
             }
         } else {
-            return redirect('/login')->withErrors('Username atau password yang anda masukkan salah');
+            return redirect('/')->withErrors('Username atau password yang anda masukkan salah');
         }
     }
     
     function logout()
     {
         Auth::logout();
-        return redirect('/login');
+        return redirect('/');
     }
 }

@@ -12,13 +12,13 @@
 </head>
 
 <body>
-    <img src="https://asset-a.grid.id/crop/0x0:0x0/x/photo/2021/08/17/kerupuk-alotjpg-20210817032124.jpg" class="bg"
+    <img src="https://www.rumahmesin.com/wp-content/uploads/2020/12/seblakkering.jpg?x44724" class="bg"
         alt="">
     <div class="login-page">
-        <h3 style="text-align: center">Login</h3>
+        <h1 style="text-align: center;">Apps Penjualan Kerupuk</h1>
         <img src="{{ asset('desain') }}/img/gambar-kerupuk.png" class="kerupuk" alt="kerupuk">
         <div class="form mt-3">
-            <form action="login" method="post" class="login-form">
+            <form action="/" method="post" class="login-form">
                 @if ($errors->any())
                     <div class="alert alert-danger">
                         @foreach ($errors->all() as $error)
@@ -34,7 +34,6 @@
         </div>
     </div>
 </body>
-<script src="{{ asset('desain') }}/js/script.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
     integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
 </script>

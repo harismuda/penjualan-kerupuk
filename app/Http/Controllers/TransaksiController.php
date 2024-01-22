@@ -4,17 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Models\Kerupuk;
 use App\Models\Transaksi;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class TransaksiController extends Controller
 {
-    public function transaksi() {
+    public function transaksi(Request $request)
+    {
         $kerupuk = Kerupuk::get();
+
+        $currentDate = Carbon::now()->toDateString();
+
+        $selectedDate = $request->input('date', $currentDate);
+
         $transaksi = Transaksi::select('*')
-        ->join('kerupuk', 'kerupuk.kerupukID', '=', 'transaksi.kerupukID')
-        ->get();
-        return view('admin.transaksi', compact('transaksi','kerupuk'));
+            ->join('kerupuk', 'kerupuk.kerupukID', '=', 'transaksi.kerupukID')
+            ->whereDate('transaksi.created_at', $selectedDate)
+            ->get();
+
+        return view('admin.transaksi', compact('transaksi', 'kerupuk', 'selectedDate'));
     }
+
 
     public function store_transaksi(Request $request){
         $request->validate([

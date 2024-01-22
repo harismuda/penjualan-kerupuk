@@ -1,6 +1,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
 @extends('layout.master')
 @section('konten')
@@ -18,12 +20,24 @@
                     </div>
                 </div>
             </div>
-            @if (Session::has('success'))
-                <div class="pt-3">
-                    <div class="alert alert-success">
-                        {{ Session::get('success') }}
+            <div class="col-md-12 text-start mt-4">
+                <form action="{{ url('/transaksi') }}" method="get" id="dateFilterForm">
+                    <div class="input-group mb-3">
+                        <input type="date" class="form-control" name="date" id="dateFilter">
+                        <button class="btn btn-primary" type="submit">Cari Barang</button>
                     </div>
-                </div>
+                </form>
+            </div>
+            @if (Session::has('success'))
+                <script>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: '{{ Session::get('success') }}',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                </script>
             @endif
             <div class="card-body">
                 <table id="example" class="table table-bordered table-striped text-center" style="width:100%">
@@ -32,6 +46,7 @@
                             <th>Nama Barang</th>
                             <th>QTY</th>
                             <th>Subtotal</th>
+                            <th>Tanggal</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -41,6 +56,11 @@
                                 <td>{{ $item->nama_barang }}</td>
                                 <td>{{ $item->qty }}</td>
                                 <td>Rp. @currency($item->qty * $item->harga_jual)</td>
+                                @if($item->updated_at == '')
+                                    <td>{{ $item->created_at }}</td>
+                                @else
+                                    <td>{{ $item->updated_at }}</td>
+                                @endif
                                 <td>
                                     <button class="btn btn-warning btn-edit" data-bs-toggle="modal"
                                         data-bs-target="#TransaksiEditModal" data-id="{{ $item->transaksiID }}"
@@ -138,10 +158,17 @@
                     <div class="mb-3">
                         <div class="dropdown-form">
                             <select name="kerupukID" id="kerupukSelect" class="form-control">
-                                <option>Pilih Barang</option>
+                                <option disabled>Pilih Barang</option>
                                 @foreach ($kerupuk as $item)
-                                    <option value="{{ $item->kerupukID }}" data-harga="{{ $item->harga_jual }}" data-stok="{{ $item->stok }}">
-                                        {{ $item->nama_barang }}</option>
+                                    @if ($item->stok > 0)
+                                        <option value="{{ $item->kerupukID }}" data-harga="{{ $item->harga_jual }}" data-stok="{{ $item->stok }}">
+                                            {{ $item->nama_barang }} - {{ $item->stok }}
+                                        </option>
+                                    @elseif($item->stok == 0)
+                                        <option value="{{ $item->kerupukID }}" data-harga="{{ $item->harga_jual }}" data-stok="{{ $item->stok }}" class="text-danger" disabled>
+                                            {{ $item->nama_barang }} - Habis
+                                        </option>
+                                    @endif
                                 @endforeach
                             </select>
                         </div>

@@ -15,13 +15,8 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
-Route::get('/home', function () {
-    return view('home');
-});
-
-Route::get('/login', [AuthController::class, 'index'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
+Route::get('/', [AuthController::class, 'index'])->name('login');
+Route::post('/', [AuthController::class, 'login']);
 Route::get('/logout', [AuthController::class, 'logout']);
 
 Route::middleware(['auth'])->group(
