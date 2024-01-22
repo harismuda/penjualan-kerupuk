@@ -11,7 +11,7 @@
                         <h4>Table List Kerupuk</h4>
                     </div>
                     <div class="col-md-6 text-end">
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kerupukModal">
+                        <button class="btn btn-primary btn-add" data-bs-toggle="modal" data-bs-target="#kerupukModal">
                             <iconify-icon icon="material-symbols:add-ad-sharp"></iconify-icon>
                         </button>
                     </div>
@@ -82,6 +82,22 @@ $(document).ready(function () {
 
         console.log(id, nama, hargaBeli, hargaJual, stok, gambar);
 
+        $('#edit-stok').on('input', function() {
+            var stokValue = $(this).val();
+
+            // Ensure stok is between 0 and maxstok (stock)
+            stokValue = parseInt(stokValue);
+
+            if (isNaN(stokValue) || stokValue < 0) {
+                stokValue = 0;
+            }
+
+            $(this).val(stokValue);
+            console.log('stokValue:', stokValue);
+        });
+
+        stok = Math.max(stok, 0);
+
         $('#edit-id').val(id);
         $('#edit-nama-barang').val(nama);
         $('#edit-harga-beli').val(hargaBeli);
@@ -89,6 +105,29 @@ $(document).ready(function () {
         $('#edit-stok').val(stok);
 
         $('#edit-gambar-preview').attr('src', '{{ asset("gambar_barang/") }}' + '/' + gambar);
+    });
+});
+
+</script>
+
+<script>
+$(document).ready(function () {
+    $(document).on('click', '.btn-add', function () {
+
+        $('#stok').on('input', function() {
+            var stokValue = $(this).val();
+
+            stokValue = parseInt(stokValue);
+
+            if (isNaN(stokValue) || stokValue < 0) {
+                stokValue = 0;
+            }
+
+            $(this).val(stokValue);
+            console.log('stokValue:', stokValue);
+        });
+
+        stok = Math.max(stok, 0);
     });
 });
 
