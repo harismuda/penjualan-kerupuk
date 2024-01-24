@@ -1,7 +1,5 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
 @extends('layout.master')
 @section('konten')
@@ -14,22 +12,11 @@
                     </div>
                     <div class="col-md-6 text-end">
                         <button class="btn btn-primary btn-add" data-bs-toggle="modal" data-bs-target="#kerupukModal">
-                            <iconify-icon icon="material-symbols:add-ad-sharp"></iconify-icon>
+                            <iconify-icon icon="mdi:add-box"></iconify-icon>
                         </button>
                     </div>
                 </div>
             </div>
-            @if (Session::has('success'))
-                <script>
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success',
-                        text: '{{ Session::get('success') }}',
-                        showConfirmButton: false,
-                        timer: 2000
-                    });
-                </script>
-            @endif
 
             <div class="card-body">
                 <table id="example" class="table table-bordered table-striped text-center">
@@ -61,10 +48,11 @@
                                         <iconify-icon icon="mingcute:edit-4-line"></iconify-icon>
                                     </button>
 
-                                    <a href="{{ url('/kerupuk/delete/' . $item->kerupukID) }}" class="btn btn-danger"
-                                        onclick="return confirm('Apa kamu yakin ingin mengahapus {{ $item->nama_barang }}?')">
+                                    <button data-bs-toggle="modal"
+                                        data-bs-target="#deleteModal" class="btn btn-danger btn-delete" 
+                                        data-id="{{ $item->kerupukID }}" data-nama="{{ $item->nama_barang }}">
                                         <iconify-icon icon="bi:trash-fill"></iconify-icon>
-                                    </a>
+                                    </button>
                                 </td>
                             </tr>
                         @endforeach
@@ -113,7 +101,7 @@
 
             $('#edit-gambar-preview').attr('src', '{{ asset('gambar_barang/') }}' + '/' + gambar);
 
-            if (gambar !== '') {
+            if (gambar !== 'gambar-default.png') {
                 $('#edit-gambar-container').hide();
                 $('#edit-gambar-ada').show();
                 $('#edit-gambar-update').show();
@@ -156,6 +144,45 @@
     });
 </script>
 
+<script>
+    $(document).ready(function() {
+        $(document).on('click', '.btn-delete', function() {
+            var nama = $(this).data('nama');
+            var id = $(this).data('id');
+
+            $('#deleteItemName').text(nama);
+            $('#confirmDelete').data('id', id);
+
+            $('#deleteModal').modal('show');
+        });
+
+        $(document).on('click', '#confirmDelete', function() {
+            var id = $(this).data('id');
+            
+            window.location.href = "{{ url('/kerupuk/delete') }}/" + id;
+        });
+    });
+</script>
+
+{{-- Modal Delete Kerupuk --}}
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Delete Barang</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+                <div class="modal-body">
+                    <p>Apakah kamu yakin ingin menghapus <span id="deleteItemName"></span>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+                </div>
+        </div>
+    </div>
+</div>
+
 {{-- Modal Add Kerupuk --}}
 <div class="modal fade" id="kerupukModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -168,11 +195,11 @@
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="nama barang" class="col-form-label">Nama Barang:</label>
+                        <label class="col-form-label">Nama Barang:</label>
                         <input type="text" class="form-control" id="nama-barang" name="nama_barang" required>
                     </div>
                     <div class="mb-3">
-                        <label for="harga jual" class="col-form-label">Harga Beli:</label>
+                        <label class="col-form-label">Harga Beli:</label>
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="basic-addon1">Rp. </span>
                             <input type="number" class="form-control" aria-describedby="basic-addon1" name="harga_beli"
@@ -180,7 +207,7 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="harga beli" class="col-form-label">Harga Jual:</label>
+                        <label class="col-form-label">Harga Jual:</label>
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="basic-addon1">Rp. </span>
                             <input type="number" class="form-control" aria-describedby="basic-addon1" name="harga_jual"
@@ -188,11 +215,11 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="stok" class="col-form-label">Stok:</label>
+                        <label class="col-form-label">Stok:</label>
                         <input type="number" class="form-control" id="stok" name="stok" required>
                     </div>
                     <div class="mb-3">
-                        <label for="gambar barang" class="col-form-label">Gambar Barang:</label>
+                        <label class="col-form-label">Gambar Barang:</label>
                         <input class="form-control" type="file" id="formFile" name="gambar_barang">
                     </div>
                 </div>
@@ -219,13 +246,13 @@
                 <div class="modal-body">
                     <input type="hidden" id="edit-id" name="id">
                     <div class="mb-3">
-                        <label for="edit-nama-barang" class="col-form-label">Nama Barang:</label>
+                        <label class="col-form-label">Nama Barang:</label>
                         <input type="text" class="form-control" id="edit-nama-barang" name="nama_barang"
                             required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="edit-harga-beli" class="col-form-label">Harga Beli:</label>
+                        <label class="col-form-label">Harga Beli:</label>
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="basic-addon1">Rp. </span>
                             <input type="number" class="form-control" aria-describedby="basic-addon1"
@@ -234,7 +261,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="edit-harga-jual" class="col-form-label">Harga Jual:</label>
+                        <label class="col-form-label">Harga Jual:</label>
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="basic-addon1">Rp. </span>
                             <input type="number" class="form-control" aria-describedby="basic-addon1"
@@ -243,7 +270,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="edit-stok" class="col-form-label">Stok:</label>
+                        <label class="col-form-label">Stok:</label>
                         <input type="number" class="form-control" id="edit-stok" name="stok" required>
                     </div>
 
@@ -252,12 +279,12 @@
                     </div>
 
                     <div class="mb-3" id="edit-gambar-container">
-                        <label for="edit-gambar" class="col-form-label">Gambar Barang:</label>
+                        <label class="col-form-label">Gambar Barang:</label>
                         <input class="form-control" type="file" id="edit-gambar" name="gambar_barang">
                     </div>
 
                     <div class="mb-3" id="edit-gambar-ada">
-                        <label for="edit-gambar" class="col-form-label">Gambar Barang:</label>
+                        <label class="col-form-label">Gambar Barang:</label>
                         <img id="edit-gambar-preview" width="100%">
                     </div>
                 </div>
@@ -273,7 +300,16 @@
 
 <script>
     $(document).ready(function() {
-        $('#example').DataTable();
+        $('#example').DataTable({
+            "columns": [
+                { "searchable": false },
+                { "searchable": true },
+                { "searchable": false },
+                { "searchable": false },
+                { "searchable": false },
+                { "searchable": false }
+            ]
+        });
     });
 </script>
 <script src="https://code.jquery.com/jquery-3.7.0.js"></script>

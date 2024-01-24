@@ -1,8 +1,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
 @extends('layout.master')
 @section('konten')
@@ -15,7 +13,7 @@
                     </div>
                     <div class="col-md-6 text-end">
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#transaksiModal">
-                            <iconify-icon icon="material-symbols:add-ad-sharp"></iconify-icon>
+                            <iconify-icon icon="mdi:add-box"></iconify-icon>
                         </button>
                     </div>
                 </div>
@@ -24,21 +22,10 @@
                 <form action="{{ url('/transaksi') }}" method="get" id="dateFilterForm">
                     <div class="input-group mb-3">
                         <input type="date" class="form-control" name="date" id="dateFilter">
-                        <button class="btn btn-primary" type="submit">Cari Barang</button>
+                        <button class="btn btn-primary" type="submit">Search by Tanggal Transaksi</button>
                     </div>
                 </form>
             </div>
-            @if (Session::has('success'))
-                <script>
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success',
-                        text: '{{ Session::get('success') }}',
-                        showConfirmButton: false,
-                        timer: 2000
-                    });
-                </script>
-            @endif
             <div class="card-body">
                 <table id="example" class="table table-bordered table-striped text-center" style="width:100%">
                     <thead>
@@ -46,7 +33,7 @@
                             <th>Nama Barang</th>
                             <th>QTY</th>
                             <th>Subtotal</th>
-                            <th>Tanggal</th>
+                            <th>Tanggal Transaksi</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -55,7 +42,7 @@
                             <tr>
                                 <td>{{ $item->nama_barang }}</td>
                                 <td>{{ $item->qty }}</td>
-                                <td>Rp. @currency($item->qty * $item->harga_jual)</td>
+                                <td>Rp. @currency($item->subtotal)</td>
                                 @if($item->updated_at == '')
                                     <td>{{ $item->created_at }}</td>
                                 @else
@@ -63,9 +50,9 @@
                                 @endif
                                 <td>
                                     <button class="btn btn-warning btn-edit" data-bs-toggle="modal"
-                                        data-bs-target="#TransaksiEditModal" data-id="{{ $item->transaksiID }}"
-                                        data-kerupuk="{{ $item->kerupukID }}" data-qty="{{ $item->qty }}"
-                                        data-barang="{{ $item->nama_barang }}" data-harga="{{ $item->harga_jual }}" data-stok="{{ $item->stok }}">
+                                        data-bs-target="#TransaksiEditModal" data-id="{{ $item->transaksiID }}" data-kerupuk="{{ $item->kerupukID }}"
+                                        data-qty="{{ $item->qty }}" data-barang="{{ $item->nama_barang }}" 
+                                        data-satuan="{{ $item->satuan }}" data-stok="{{ $item->stok }}">
                                         <iconify-icon icon="mingcute:edit-4-line"></iconify-icon>
                                     </button>
                                 </td>
@@ -86,27 +73,26 @@
             var kerupuk = $(this).data('kerupuk');
             var qty = $(this).data('qty');
             var barang = $(this).data('barang');
-            var harga = $(this).data('harga');
+            var satuan = $(this).data('satuan');
             var stok = $(this).data('stok');
 
-            console.log(id, kerupuk, qty, barang, harga, stok);
+            console.log(id, kerupuk, qty, barang, satuan, stok);
 
-            var subtotal = harga * qty;
+            var subtotal = satuan * qty;
 
             $('#edit-id').val(id);
             $('.edit-qty').val(qty);
-            $('.edit-namaBarang').val(barang);
-            $('#edit-harga').val(harga);
+            $('#edit-satuan').val(satuan);
             $('#edit-subtotal').val(subtotal);
-
-            $('#edit-kerupukID.edit-namaBarang').text(barang).val(kerupuk);
+            $('#edit-kerupukID').val(kerupuk);
+            $('#edit-nama_barang').val(barang);
 
             $('.edit-qty').attr('max', stok);
 
             console.log('ID Transaksi : ', $('#edit-id').val())
             console.log('ID Kerupuk : ', $('#edit-kerupukID').val())
             console.log('QTY : ', $('.edit-qty').val())
-            console.log('Nama Kerupuk : ', $('.edit-namaBarang').val())
+            console.log('Nama Kerupuk : ', $('#edit-nama_barang').val())
 
             $('.edit-qty').on('input', function() {
             var qtyValue = $(this).val();
@@ -115,8 +101,8 @@
             // Ensure qty is between 0 and maxQty (stock)
             qtyValue = parseInt(qtyValue);
 
-            if (isNaN(qtyValue) || qtyValue < 0) {
-                qtyValue = 0;
+            if (isNaN(qtyValue) || qtyValue < 1) {
+                qtyValue = 1;
             } else if (qtyValue > maxQty) {
                 qtyValue = maxQty;
             }
@@ -127,11 +113,11 @@
             });
 
             function updateSubtotal() {
-                var newQty = parseInt($('.edit-qty').val()) || 0;
+                var newQty = parseInt($('.edit-qty').val()) || 1;
 
-                newQty = Math.max(newQty, 0);
+                newQty = Math.max(newQty, 1);
 
-                var newSubtotal = harga * newQty;
+                var newSubtotal = satuan * newQty;
                 console.log('New Subtotal:', newSubtotal);
                 $('#edit-subtotal').val(newSubtotal);
             }
@@ -149,23 +135,24 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Add Transaksi</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Add New Transaction</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="{{ url('/store_transaksi') }}" method="post" id="transaction">
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
+                        <label for="nama barang" class="col-form-label">Nama Barang</label>
                         <div class="dropdown-form">
                             <select name="kerupukID" id="kerupukSelect" class="form-control">
-                                <option disabled>Pilih Barang</option>
+                                <option>Pilih Barang</option>
                                 @foreach ($kerupuk as $item)
                                     @if ($item->stok > 0)
-                                        <option value="{{ $item->kerupukID }}" data-harga="{{ $item->harga_jual }}" data-stok="{{ $item->stok }}">
+                                        <option value="{{ $item->kerupukID }}" data-harga="{{ $item->harga_jual }}" data-stok="{{ $item->stok }}" data-barang="{{ $item->nama_barang }}">
                                             {{ $item->nama_barang }} - {{ $item->stok }}
                                         </option>
                                     @elseif($item->stok == 0)
-                                        <option value="{{ $item->kerupukID }}" data-harga="{{ $item->harga_jual }}" data-stok="{{ $item->stok }}" class="text-danger" disabled>
+                                        <option value="{{ $item->nama_barang }}" data-harga="{{ $item->harga_jual }}" data-stok="{{ $item->stok }}" class="text-danger" disabled>
                                             {{ $item->nama_barang }} - Habis
                                         </option>
                                     @endif
@@ -173,18 +160,19 @@
                             </select>
                         </div>
                     </div>
+                    <input type="hidden" class="form-control" aria-describedby="basic-addon1" id="nama_barang" name="nama_barang" readonly>
                     <div class="mb-3">
                         <label for="harga jual" class="col-form-label">Harga Jual</label>
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="basic-addon1">Rp. </span>
                             <input type="number" class="form-control" aria-describedby="basic-addon1" id="harga_jual"
-                                name="harga_jual" readonly>
+                                name="satuan" readonly>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label for="qty" class="col-form-label">QTY</label>
                         <div class="input-group mb-3">
-                            <input type="number" class="form-control" name="qty" id="qty" required min="0">
+                            <input type="number" class="form-control" name="qty" id="qty" required min="1">
                         </div>
                     </div>
                     <div class="mb-3">
@@ -209,25 +197,23 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Update Transaksi</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Update Transaction</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="{{ url('/update_transaksi') }}" method="post" id="transaction">
                 @csrf @method('PUT')
                 <div class="modal-body">
                     <input type="hidden" id="edit-id" name="id">
+                    <input type="hidden" name="kerupukID" class="form-control" aria-describedby="basic-addon1" id="edit-kerupukID" readonly>
                     <div class="mb-3">
-                        <div class="dropdown-form">
-                            <select name="kerupukID" id="kerupukSelect" class="form-control" readonly>
-                                <option id="edit-kerupukID" class="edit-namaBarang" value=""></option>
-                            </select>
-                        </div>
+                        <label for="nama barang" class="col-form-label">Nama Barang</label>
+                        <input type="text" name="nama_barang" class="form-control" aria-describedby="basic-addon1" id="edit-nama_barang" readonly>
                     </div>
                     <div class="mb-3">
                         <label for="harga jual" class="col-form-label">Harga Jual</label>
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="basic-addon1">Rp. </span>
-                            <input type="number" class="form-control" aria-describedby="basic-addon1" id="edit-harga" readonly>
+                            <input type="number" name="satuan" class="form-control" aria-describedby="basic-addon1" id="edit-satuan" readonly>
                         </div>
                     </div>
                     <div class="mb-3">
@@ -254,17 +240,26 @@
 </div>
 <script>
     $(document).ready(function() {
+        $('#transaksiModal').on('hidden.bs.modal', function () {
+            $('#kerupukSelect').val('Pilih Barang');
+            $('#nama_barang').val('');
+            $('#harga_jual').val('');
+            $('#qty').val('');
+            $('#subtotal').val('');
+        });
+
         $('#kerupukSelect').change(function() {
             var selectedOption = $(this).find(':selected');
             var harga = parseFloat(selectedOption.data('harga'));
+            var barang = selectedOption.data('barang');
             var stok = parseInt(selectedOption.data('stok'));
 
             console.log('stok:', stok);
 
             console.log('Harga:', harga);
             $('#harga_jual').val(harga);
+            $('#nama_barang').val(barang);
 
-            // Set the maximum value for quantity based on available stock
             $('#qty').attr('max', stok);
 
             updateSubtotal();
@@ -274,11 +269,10 @@
             var qtyValue = $(this).val();
             var maxQty = parseInt($(this).attr('max'));
 
-            // Ensure qty is between 0 and maxQty (stock)
             qtyValue = parseInt(qtyValue);
 
-            if (isNaN(qtyValue) || qtyValue < 0) {
-                qtyValue = 0;
+            if (isNaN(qtyValue) || qtyValue < 1) {
+                qtyValue = 1;
             } else if (qtyValue > maxQty) {
                 qtyValue = maxQty;
             }
@@ -292,7 +286,7 @@
             var harga = parseFloat($('#harga_jual').val()) || 0;
             var qty = parseInt($('#qty').val()) || 0;
 
-            qty = Math.max(qty, 0);
+            qty = Math.max(qty, 1);
 
             var subtotal = harga * qty;
             console.log('Subtotal:', subtotal);
@@ -309,6 +303,13 @@ $(document).ready(function() {
         buttons: [{
             extend: 'excel',
             text: 'Excel',
+            filename: function () {
+                var currentDate = new Date();
+                var day = ("0" + currentDate.getDate()).slice(-2);
+                var month = ("0" + (currentDate.getMonth() + 1)).slice(-2);
+                var year = currentDate.getFullYear();
+                return 'PenjualanKerupuk_' + year + month + day;
+            },
             customizeData: function (excelData) {
                 for (var i = 0; i < excelData.body.length; i++) {
                     excelData.body[i][2] = excelData.body[i][2].replace('Rp. ', '');
@@ -319,7 +320,15 @@ $(document).ready(function() {
 
                 console.log('Modified Excel Data:', excelData);
             }
-        }, 'pdf', 'colvis']
+        }, 'pdf', 'colvis'
+        ],
+        "columns": [
+            { "searchable": true },
+            { "searchable": false },
+            { "searchable": false },
+            { "searchable": false },
+            { "searchable": false }
+        ]
     });
 
     table.buttons().container().appendTo('#example_wrapper .col-md-6:eq(0)');

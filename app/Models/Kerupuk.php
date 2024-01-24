@@ -15,7 +15,6 @@ class Kerupuk extends Model
         'stok',
         'harga_beli',
         'harga_jual',
-        'activity',
         'gambar_barang',
         'created_at',
         'updated_at',

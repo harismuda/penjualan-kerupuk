@@ -18,7 +18,6 @@ class TransaksiController extends Controller
         $selectedDate = $request->input('date', $currentDate);
 
         $transaksi = Transaksi::select('*')
-            ->join('kerupuk', 'kerupuk.kerupukID', '=', 'transaksi.kerupukID')
             ->whereDate('transaksi.created_at', $selectedDate)
             ->get();
 
@@ -33,7 +32,10 @@ class TransaksiController extends Controller
 
         Transaksi::insert([
             'kerupukID' => $request->kerupukID,
+            'nama_barang' => $request->nama_barang,
             'qty' => $request->qty,
+            'satuan' => $request->satuan,
+            'subtotal' => $request->subtotal,
             'created_at' => date('Y-m-d H:i:s')
         ]);
 
@@ -59,7 +61,10 @@ class TransaksiController extends Controller
 
         $transaksi->update([
             'kerupukID' => $request->kerupukID,
+            'nama_barang' => $request->nama_barang,
             'qty' => $request->qty,
+            'satuan' => $request->satuan,
+            'subtotal' => $request->subtotal,
             'updated_at' => date('Y-m-d H:i:s')
         ]);
 
@@ -77,9 +82,7 @@ class TransaksiController extends Controller
     }
     public function get_transaksi()
     {
-        $data = Transaksi::select('transaksi.created_at', 'transaksi.qty', 'kerupuk.harga_jual')
-        ->join('kerupuk', 'kerupuk.kerupukID', '=', 'transaksi.kerupukID')
-        ->get();
+        $data = Transaksi::get();
         return response()->json($data);
     }
 }

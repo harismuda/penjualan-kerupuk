@@ -12,10 +12,13 @@
 </head>
 
 <body>
-    <img src="https://www.rumahmesin.com/wp-content/uploads/2020/12/seblakkering.jpg?x44724" class="bg"
-        alt="">
+    <div class="bg">
+        <img src="https://www.rumahmesin.com/wp-content/uploads/2020/12/seblakkering.jpg?x44724" alt="" style="width:180%; height: 150%">
+    </div>
+    <div class="judul">
+        <h1 style="text-align: center; padding-top:100px; ">Login Apps Penjualan Kerupuk</h1>
+    </div>
     <div class="login-page">
-        <h1 style="text-align: center;">Apps Penjualan Kerupuk</h1>
         <img src="{{ asset('desain') }}/img/gambar-kerupuk.png" class="kerupuk" alt="kerupuk">
         <div class="form mt-3">
             <form action="/" method="post" class="login-form">

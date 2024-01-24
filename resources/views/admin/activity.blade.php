@@ -16,21 +16,19 @@
             <table id="example" class="table table-bordered table-striped text-center">
                 <thead>
                     <tr>
-                        <th>Activity</th>
+                        <th>User</th>
                         <th>Item</th>
+                        <th>Activity</th>
                         <th>Time</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($kerupuk as $item)
+                    @foreach ($activity as $item)
                     <tr>
-                        <td>{{ $item->activity }}</td>
+                        <td>{{ $item->name_user }}</td>
                         <td>{{ $item->nama_barang }}</td>
-                        @if ($item->activity == 'Add Master Barang')
-                            <td>{{ $item->created_at }}</td>
-                        @else
-                            <td>{{ $item->updated_at }}</td>
-                        @endif
+                        <td>{{ $item->activity }}</td>
+                        <td>{{ $item->tanggal }}</td>
                     </tr>
                     @endforeach
                 </tbody>

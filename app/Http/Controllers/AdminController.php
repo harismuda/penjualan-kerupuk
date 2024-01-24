@@ -2,66 +2,83 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Activity;
 use App\Models\Kerupuk;
 use App\Models\Transaksi;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
-    public function index() {
+    public function index()
+    {
         $data = Transaksi::get();
-        
+
         return view('admin.dashboar', compact('data'));
     }
 
-    public function history($order = 'desc') {
-        $kerupuk = Kerupuk::orderBy('kerupukID', $order)->get();
-        return view('admin.activity', compact('kerupuk'));
+    public function history($order = 'desc')
+    {
+        $activity = Activity::orderBy('tanggal', $order)->get();
+        return view('admin.activity', compact('activity'));
     }
 
-    public function kerupuk($order = 'asc') {
+    public function kerupuk($order = 'asc')
+    {
         $kerupuk = Kerupuk::orderBy('nama_barang', $order)->get();
         return view('admin.kerupuk', compact('kerupuk'));
     }
 
-    public function store(Request $request) {
-
+    public function store(Request $request)
+    {
         $request->validate([
-            'nama_barang' => 'required',
+            'nama_barang' => 'required|unique:kerupuk,nama_barang',
             'harga_beli' => 'required|numeric',
             'harga_jual' => 'required|numeric',
             'stok' => 'required|integer',
             'gambar_barang' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            'nama_barang.required' => 'Nama barang wajib diisi.',
+            'nama_barang.unique' => 'Nama barang sudah ada.',
+            'harga_beli.required' => 'Harga beli wajib diisi.',
+            'harga_beli.numeric' => 'Isilah harga beli dengan angka.',
+            'harga_jual.required' => 'Harga jual wajib diisi.',
+            'harga_jual.numeric' => 'Isilah harga jual dengan angka.',
+            'stok.required' => 'Stok wajib diisi.',
+            'stok.integer' => 'Masukkan angka stok yang benar.',
+            'gambar_barang.image' => 'Masukkan gambar.',
+            'gambar_barang.mimes' => 'Gambar harus berupa file bertipe: jpeg, png, jpg, gif.',
+            'gambar_barang.max' => 'Gambar_barang tidak boleh lebih besar dari 2048 kb.',
         ]);
 
-        
+        // Validation passed
+        $imgName = $request->hasFile('gambar_barang')
+            ? 'img' . time() . '.' . $request->gambar_barang->extension()
+            : 'gambar-default.png';
+
         if ($request->hasFile('gambar_barang')) {
-            $gambar = $request->file('gambar_barang')->store('photos', 'public');
-            $imgName = 'img' . time() . '.' . $request->gambar_barang->extension();
             $request->gambar_barang->move(public_path('gambar_barang'), $imgName);
+        }
 
-            Kerupuk::insert([
-                'nama_barang' => $request->nama_barang,
-                'harga_beli' => $request->harga_beli,
-                'harga_jual' => $request->harga_jual,
-                'stok' => $request->stok,
-                'gambar_barang' => $imgName,
+        $kerupuk = Kerupuk::create([
+            'nama_barang' => $request->nama_barang,
+            'harga_beli' => $request->harga_beli,
+            'harga_jual' => $request->harga_jual,
+            'stok' => $request->stok,
+            'gambar_barang' => $imgName,
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        if ($kerupuk->wasRecentlyCreated) {
+            Activity::create([
                 'activity' => $request->activity,
-                'created_at' => date('Y-m-d H:i:s')
+                'name_user' => Auth::user()->name,
+                'nama_barang' => $request->nama_barang,
+                'tanggal' => date('Y-m-d H:i:s'),
             ]);
-
-            return redirect()->back()->with('success', 'Data barang berhasil ditambahkan.');
+            return redirect()->back()->with('success', 'Add kerupuk success.');
         } else {
-            Kerupuk::insert([
-                'nama_barang' => $request->nama_barang,
-                'harga_beli' => $request->harga_beli,
-                'harga_jual' => $request->harga_jual,
-                'stok' => $request->stok,
-                'activity' => $request->activity,
-                'created_at' => date('Y-m-d H:i:s')
-            ]);
-
-            return redirect()->back()->with('success', 'Data barang berhasil ditambahkan.');
+            return redirect()->back()->withErrors(['errors' => 'Gagal menambahkan data.'])->withInput();
         }
     }
 
@@ -73,18 +90,28 @@ class AdminController extends Controller
             'harga_jual' => 'required|numeric',
             'stok' => 'required|integer',
             'gambar_barang' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            'nama_barang.required' => 'Nama barang wajib diisi.',
+            'harga_beli.required' => 'Harga beli wajib diisi.',
+            'harga_beli.numeric' => 'Isilah harga beli dengan angka.',
+            'harga_jual.required' => 'Harga jual wajib diisi.',
+            'harga_jual.numeric' => 'Isilah harga jual dengan angka.',
+            'stok.required' => 'Stok wajib diisi.',
+            'stok.integer' => 'Masukkan angka stok yang benar.',
+            'gambar_barang.image' => 'Masukkan gambar.',
+            'gambar_barang.mimes' => 'Gambar harus berupa file bertipe: jpeg, png, jpg, gif.',
+            'gambar_barang.max' => 'Gambar_barang tidak boleh lebih besar dari 2048 kb.',
         ]);
 
         $kerupuk = Kerupuk::find($request->id);
 
-        
-        if($request->hasFile('gambar_barang')) {
+        if ($request->hasFile('gambar_barang')) {
             if ($request->hasFile('gambar_barang')) {
-                
+
                 $imgName = 'img' . time() . '.' . $request->gambar_barang->extension();
                 $request->gambar_barang->move(public_path('gambar_barang'), $imgName);
-                
-                if($kerupuk->gambar_barang){
+
+                if ($kerupuk->gambar_barang && $kerupuk->gambar_barang != 'gambar-default.png') {
                     $oldImagePath = public_path('gambar_barang/') . $kerupuk->gambar_barang;
                     if (file_exists($oldImagePath)) {
                         unlink($oldImagePath);
@@ -102,8 +129,15 @@ class AdminController extends Controller
                 'activity' => $request->activity,
                 'updated_at' => date('Y-m-d H:i:s')
             ]);
-    
-            return redirect()->back()->with('success', 'Data barang berhasil diperbarui.');
+
+            Activity::insert([
+                'activity' => $request->activity,
+                'name_user' => Auth::user()->name,
+                'nama_barang' => $request->nama_barang,
+                'tanggal' => date('Y-m-d H:i:s')
+            ]);
+
+            return redirect()->back()->with('success', 'Update kerupuk berhasil.');
         } else {
             $kerupuk->update([
                 'nama_barang' => $request->nama_barang,
@@ -114,7 +148,14 @@ class AdminController extends Controller
                 'updated_at' => date('Y-m-d H:i:s')
             ]);
 
-            return redirect()->back()->with('success', 'Data barang berhasil diperbarui.');
+            Activity::insert([
+                'activity' => $request->activity,
+                'name_user' => Auth::user()->name,
+                'nama_barang' => $request->nama_barang,
+                'tanggal' => date('Y-m-d H:i:s')
+            ]);
+
+            return redirect()->back()->with('success', 'Update kerupuk berhasil.');
         }
     }
 
@@ -124,17 +165,21 @@ class AdminController extends Controller
         $kerupuk = Kerupuk::find($id);
 
         if (!$kerupuk) {
-            return redirect()->back()->with('error', 'Kerupuk not found.');
+            return redirect()->back()->with('error', 'Kerupuk tidak ada.');
         }
 
         $imagePath = public_path('gambar_barang/' . $kerupuk->gambar_barang);
 
-        if (file_exists($imagePath)) {
-            unlink($imagePath);
+        if ($kerupuk->stok == 0) {
+            if ($kerupuk->gambar_barang == 'gambar-default.png') {
+                $kerupuk->delete();
+            } else if (file_exists($imagePath)) {
+                unlink($imagePath);
+                $kerupuk->delete();
+            }
+            return redirect()->back()->with('success', 'Delete kerupuk berhasil.');
+        } else {
+            return redirect()->back()->withErrors(['errors' => 'Stok kerupuk masih tersedia.'])->withInput();
         }
-
-        $kerupuk->delete();
-
-        return redirect()->back()->with('success', 'Data barang berhasil dihapus.');
     }
 }

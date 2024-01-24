@@ -10,12 +10,14 @@
     <link rel="stylesheet" href="https://unpkg.com/@adminkit/core@latest/dist/css/app.css">
     <script src="https://unpkg.com/@adminkit/core@latest/dist/js/app.js"></script>
     <link rel="stylesheet" href="{{ asset('desain') }}/css/style.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 </head>
-
 <body>
-    <div class="side-navbar active-nav d-flex justify-content-between flex-wrap flex-column" id="sidebar">
+    <div class="side-navbar d-flex justify-content-between flex-wrap flex-column" style="z-index: 1" id="sidebar">
         <ul class="nav flex-column text-white w-100">
             <h5 class="my-2 nav-link text-white">Penjualan Kerupuk</h5>
+            {{-- {{ Auth::user()->name }} --}}
             <a href="{{ url('/dashboar') }}"
                 class="nav-link text-white {{ request()->routeIs('/dashboar') ? 'active' : '' }}">
                 <li>
@@ -51,10 +53,70 @@
             </a>
         </ul>
     </div>
-    <div class="p-1 my-container active-cont">
+    <div class="side-navbar active-nav d-flex justify-content-between flex-wrap flex-column" style="width:auto;" id="sidebarLogo">
+        <ul class="nav flex-column text-white w-100 mt-3">
+            <a class="nav-link text-white" id="menu-btn2"><iconify-icon icon="ion:menu" width="20px"></iconify-icon></a>
+            <h5 class="my-2 nav-link text-white">PK</h5>
+            <a href="{{ url('/dashboar') }}"
+                class="nav-link text-white {{ request()->routeIs('/dashboar') ? 'active' : '' }}">
+                <li>
+                    <iconify-icon icon="ion:home" width="20px"></iconify-icon>
+                </li>
+            </a>
+            <a href="{{ url('/kerupuk') }}" class="nav-link text-white">
+                <li>
+                    <iconify-icon icon="fluent:list-bar-20-filled" width="20px"></iconify-icon>
+                </li>
+            </a>
+            <a href="{{ url('/transaksi') }}"
+                class="nav-link text-white {{ request()->routeIs('/activity') ? 'active' : '' }}">
+                <li>
+                    <iconify-icon icon="ep:sell" width="20px"></iconify-icon>
+                </li>
+            </a>
+            <a href="{{ url('/activity') }}"
+                class="nav-link text-white {{ request()->routeIs('/activity') ? 'active' : '' }}">
+                <li>
+                    <iconify-icon icon="material-symbols:history" width="20px"></iconify-icon>
+                </li>
+            </a>
+            <a href="{{ url('logout') }}" class="nav-link text-white">
+                <li>
+                    <iconify-icon icon="tdesign:logout" width="20px"></iconify-icon>
+                </li>
+            </a>
+        </ul>
+    </div>
+    <div class="p-1 my-container ">
         <nav class="navbar top-navbar navbar-light bg-light px-5">
             <a class="btn border-0" id="menu-btn"><i class="bx bx-menu"></i></a>
         </nav>
+        @if (Session::has('success'))
+                <script>
+                    console.log('Success')
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: '{{ Session::get('success') }}',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                </script>
+            @elseif($errors->any())
+                <script>
+                    console.log('Error')
+
+                    var errorMessage = @json($errors->all());
+                    var formattedErrorMessage = errorMessage.join('<br>');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: formattedErrorMessage,
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                </script>
+            @endif
         @yield('konten')
     </div>
 </body>
