@@ -99,7 +99,6 @@
                         title: 'Success',
                         text: '{{ Session::get('success') }}',
                         showConfirmButton: false,
-                        timer: 2000
                     });
                 </script>
             @elseif($errors->any())
@@ -107,13 +106,12 @@
                     console.log('Error')
 
                     var errorMessage = @json($errors->all());
-                    var formattedErrorMessage = errorMessage.join('<br>');
+                    var formattedErrorMessage = errorMessage.join(' & ');
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
                         text: formattedErrorMessage,
                         showConfirmButton: false,
-                        timer: 2000
                     });
                 </script>
             @endif

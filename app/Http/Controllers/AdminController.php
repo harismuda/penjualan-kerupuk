@@ -19,7 +19,7 @@ class AdminController extends Controller
 
     public function history($order = 'desc')
     {
-        $activity = Activity::orderBy('tanggal', $order)->get();
+        $activity = Activity::orderBy('created_at', $order)->get();
         return view('admin.activity', compact('activity'));
     }
 
@@ -74,7 +74,7 @@ class AdminController extends Controller
                 'activity' => $request->activity,
                 'name_user' => Auth::user()->name,
                 'nama_barang' => $request->nama_barang,
-                'tanggal' => date('Y-m-d H:i:s'),
+                'created_at' => date('Y-m-d H:i:s'),
             ]);
             return redirect()->back()->with('success', 'Add kerupuk success.');
         } else {
@@ -134,7 +134,7 @@ class AdminController extends Controller
                 'activity' => $request->activity,
                 'name_user' => Auth::user()->name,
                 'nama_barang' => $request->nama_barang,
-                'tanggal' => date('Y-m-d H:i:s')
+                'created_at' => date('Y-m-d H:i:s')
             ]);
 
             return redirect()->back()->with('success', 'Update kerupuk berhasil.');
@@ -152,7 +152,7 @@ class AdminController extends Controller
                 'activity' => $request->activity,
                 'name_user' => Auth::user()->name,
                 'nama_barang' => $request->nama_barang,
-                'tanggal' => date('Y-m-d H:i:s')
+                'created_at' => date('Y-m-d H:i:s')
             ]);
 
             return redirect()->back()->with('success', 'Update kerupuk berhasil.');
@@ -160,9 +160,9 @@ class AdminController extends Controller
     }
 
 
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        $kerupuk = Kerupuk::find($id);
+        $kerupuk = Kerupuk::find($request->id);
 
         if (!$kerupuk) {
             return redirect()->back()->with('error', 'Kerupuk tidak ada.');
@@ -177,7 +177,14 @@ class AdminController extends Controller
                 unlink($imagePath);
                 $kerupuk->delete();
             }
+            Activity::insert([
+                'activity' => 'Delete Master Barang',
+                'name_user' => Auth::user()->name,
+                'nama_barang' => $kerupuk->nama_barang,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
             return redirect()->back()->with('success', 'Delete kerupuk berhasil.');
+
         } else {
             return redirect()->back()->withErrors(['errors' => 'Stok kerupuk masih tersedia.'])->withInput();
         }

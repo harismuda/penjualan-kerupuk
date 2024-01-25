@@ -10,7 +10,7 @@
 <div class="row m-1">
     <div class="card col-md-12 mt-1">
         <div class="card-header bg-light">
-            <h4>Table List Kerupuk</h4>
+            <h4>Log Activity</h4>
         </div>
         <div class="card-body">
             <table id="example" class="table table-bordered table-striped text-center">
@@ -28,7 +28,7 @@
                         <td>{{ $item->name_user }}</td>
                         <td>{{ $item->nama_barang }}</td>
                         <td>{{ $item->activity }}</td>
-                        <td>{{ $item->tanggal }}</td>
+                        <td>{{ DateTime::createFromFormat('Y-m-d H:i:s', $item->created_at)->format('d-m-Y H:i:s') }}</td>
                     </tr>
                     @endforeach
                 </tbody>

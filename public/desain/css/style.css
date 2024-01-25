@@ -1,7 +1,31 @@
 .login-page {
     width: 360px;
-    padding: 3% 0 0;
     margin: auto;
+}
+
+.letakImg{
+    display: flex;
+    position: relative;
+    justify-content:center;
+}
+
+.regis{
+    margin-top: 10px;
+}
+
+a {
+    text-decoration:none;
+}
+
+.regis-text {
+    font-size: 0.8em;
+}
+
+.kerupuk1, .kerupuk2, .kerupuk3, .kerupuk4 {
+    width: 100px;
+    height: 100px;
+    margin-left:2px ;
+    margin-right:2px ;
 }
 
 .form {
@@ -112,14 +136,6 @@
 .bg {
     opacity: 15%;
     position: fixed;
-}
-
-.kerupuk {
-    width: 300px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    height: 300px;
 }
 
 body {

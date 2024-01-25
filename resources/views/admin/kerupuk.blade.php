@@ -64,7 +64,6 @@
 @endsection
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
 <script>
     $(document).ready(function() {
         $(document).on('click', '.btn-edit', function() {
@@ -76,6 +75,21 @@
             var gambar = $(this).data('gambar');
 
             console.log(id, nama, hargaBeli, hargaJual, stok, gambar);
+
+            $('.harga_beli').val('');
+
+            $('.harga_beli').on('input', function() {
+                var beli = $(this).val()
+                jual()
+            })
+
+            function jual() {
+                var beli = parseFloat($('.harga_beli').val()) || 0;
+                var jual = beli * 10 / 100 + beli
+
+                console.log('harga:', jual)
+                $('.harga_jual').val(jual);
+            }
 
             $('#edit-stok').on('input', function() {
                 var stokValue = $(this).val();
@@ -121,7 +135,6 @@
         });
     });
 </script>
-
 <script>
     $(document).ready(function() {
         $(document).on('click', '.btn-add', function() {
@@ -139,11 +152,32 @@
                 console.log('stokValue:', stokValue);
             });
 
+            $('#harga_beli').val('');
+
+            $('#harga_beli').on('input', function() {
+                var beli = $(this).val()
+
+                beli = parseInt(beli);
+
+                $(this).val(beli);
+                console.log(beli)
+                jual()
+            })
+
+            function jual() {
+                var beli = parseFloat($('#harga_beli').val()) || 0;
+                beli = Math.max(beli, 0);
+
+                var jual = beli * 10 / 100 + beli
+
+                console.log('harga:', jual)
+                $('#harga_jual').val(jual);
+            }
+
             stok = Math.max(stok, 0);
         });
     });
 </script>
-
 <script>
     $(document).ready(function() {
         $(document).on('click', '.btn-delete', function() {
@@ -196,27 +230,27 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="col-form-label">Nama Barang:</label>
-                        <input type="text" class="form-control" id="nama-barang" name="nama_barang" required>
+                        <input type="text" class="form-control" id="nama-barang" name="nama_barang">
                     </div>
                     <div class="mb-3">
                         <label class="col-form-label">Harga Beli:</label>
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="basic-addon1">Rp. </span>
-                            <input type="number" class="form-control" aria-describedby="basic-addon1" name="harga_beli"
-                                required>
+                            <input type="number" id="harga_beli" class="form-control" aria-describedby="basic-addon1" name="harga_beli"
+                            >
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="col-form-label">Harga Jual:</label>
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="basic-addon1">Rp. </span>
-                            <input type="number" class="form-control" aria-describedby="basic-addon1" name="harga_jual"
-                                required>
+                            <input type="number" id="harga_jual" class="form-control" aria-describedby="basic-addon1" name="harga_jual"
+                             readonly>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="col-form-label">Stok:</label>
-                        <input type="number" class="form-control" id="stok" name="stok" required>
+                        <input type="number" class="form-control" id="stok" name="stok">
                     </div>
                     <div class="mb-3">
                         <label class="col-form-label">Gambar Barang:</label>
@@ -248,15 +282,15 @@
                     <div class="mb-3">
                         <label class="col-form-label">Nama Barang:</label>
                         <input type="text" class="form-control" id="edit-nama-barang" name="nama_barang"
-                            required>
+                        >
                     </div>
 
                     <div class="mb-3">
                         <label class="col-form-label">Harga Beli:</label>
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="basic-addon1">Rp. </span>
-                            <input type="number" class="form-control" aria-describedby="basic-addon1"
-                                id="edit-harga-beli" name="harga_beli" required>
+                            <input type="number" class="form-control harga_beli" aria-describedby="basic-addon1"
+                                id="edit-harga-beli" name="harga_beli">
                         </div>
                     </div>
 
@@ -264,14 +298,14 @@
                         <label class="col-form-label">Harga Jual:</label>
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="basic-addon1">Rp. </span>
-                            <input type="number" class="form-control" aria-describedby="basic-addon1"
-                                id="edit-harga-jual" name="harga_jual" required>
+                            <input type="number" class="form-control harga_jual" aria-describedby="basic-addon1"
+                                id="edit-harga-jual" name="harga_jual" readonly>
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="col-form-label">Stok:</label>
-                        <input type="number" class="form-control" id="edit-stok" name="stok" required>
+                        <input type="number" class="form-control" id="edit-stok" name="stok">
                     </div>
 
                     <div class="mb-3" id="edit-gambar-update">

@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     return entryDay === day;
                 });
 
-                const totalSubtotal = matchingData.reduce((acc, entry) => acc + entry.satuan * entry.qty, 0);
+                const totalSubtotal = matchingData.reduce((acc, entry) => acc + (entry.satuan - entry.modal) * entry.qty, 0);
 
                 return totalSubtotal;
             });

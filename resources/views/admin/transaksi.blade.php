@@ -9,7 +9,13 @@
             <div class="card-header bg-light">
                 <div class="row">
                     <div class="col-md-6 text-start">
-                        <h4>Table Transaksi</h4>
+                        @if (!empty($selectedDate))
+                            <h4>Data Transaksi - {{ $selectedDate }}</h4>
+                        @elseif (!empty($start) && !empty($end))
+                            <h4>Data Transaksi - {{ $start }} To {{ $end }}</h4>
+                        @else
+                            <h4>Data Transaksi - {{ $currentDate }}</h4>
+                        @endif
                     </div>
                     <div class="col-md-6 text-end">
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#transaksiModal">
@@ -18,15 +24,32 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-12 text-start mt-4">
-                <form action="{{ url('/transaksi') }}" method="get" id="dateFilterForm">
-                    <div class="input-group mb-3">
-                        <input type="date" class="form-control" name="date" id="dateFilter">
-                        <button class="btn btn-primary" type="submit">Search by Tanggal Transaksi</button>
-                    </div>
-                </form>
-            </div>
             <div class="card-body">
+                <div class="col-md-12 text-start">
+                    <form action="{{ url('/transaksi') }}" method="get">
+                        <div class="input-group mb-3">
+                            @if (!empty($selectedDate))
+                                <input type="date" class="form-control" id="dateFilter" name="date" style="border-radius:20px;" value="{{ $selectedDate }}">
+                            @else
+                                <input type="date" class="form-control" id="dateFilter" name="date" style="border-radius:20px;" value="{{ $currentDate }}">
+                            @endif
+                            <button class="btn btn-primary" type="submit" style="border-radius:20px; margin-right:5px; margin-left:5px;">Search by Transaction Date</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-12 text-start">
+                    <form action="{{ url('/transaksi') }}" method="get">
+                        <div class="input-group mb-3">
+                            <label for="startDate" class="col-form-label" style="margin-right:5px; ">From</label>
+                            <input type="date" class="form-control" name="start_date" style="border-radius:20px;" value="{{ $start }}">
+                            
+                            <label for="endDate" class="col-form-label" style="margin-right:5px; margin-left:5px; ">To</label>
+                            <input type="date" class="form-control" name="end_date" style="border-radius:20px;" value="{{ $end }}">
+                            
+                            <button class="btn btn-primary" type="submit" style="border-radius:20px; margin-right:5px; margin-left:5px;">Search by Transaction Date Range</button>
+                        </div>
+                    </form>
+                </div>
                 <table id="example" class="table table-bordered table-striped text-center" style="width:100%">
                     <thead>
                         <tr>
@@ -44,15 +67,15 @@
                                 <td>{{ $item->qty }}</td>
                                 <td>Rp. @currency($item->subtotal)</td>
                                 @if($item->updated_at == '')
-                                    <td>{{ $item->created_at }}</td>
+                                    <td>{{ DateTime::createFromFormat('Y-m-d H:i:s', $item->created_at)->format('d-m-Y H:i:s') }}</td>
                                 @else
-                                    <td>{{ $item->updated_at }}</td>
+                                    <td>{{ DateTime::createFromFormat('Y-m-d H:i:s', $item->updated_at)->format('d-m-Y H:i:s') }}</td>
                                 @endif
                                 <td>
                                     <button class="btn btn-warning btn-edit" data-bs-toggle="modal"
                                         data-bs-target="#TransaksiEditModal" data-id="{{ $item->transaksiID }}" data-kerupuk="{{ $item->kerupukID }}"
                                         data-qty="{{ $item->qty }}" data-barang="{{ $item->nama_barang }}" 
-                                        data-satuan="{{ $item->satuan }}" data-stok="{{ $item->stok }}">
+                                        data-satuan="{{ $item->satuan }}" data-stok="{{ $item->stok }}" data-modal="{{ $item->modal }}">
                                         <iconify-icon icon="mingcute:edit-4-line"></iconify-icon>
                                     </button>
                                 </td>
@@ -64,72 +87,6 @@
         </div>
     </div>
 @endsection
-
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $(document).on('click', '.btn-edit', function() {
-            var id = $(this).data('id');
-            var kerupuk = $(this).data('kerupuk');
-            var qty = $(this).data('qty');
-            var barang = $(this).data('barang');
-            var satuan = $(this).data('satuan');
-            var stok = $(this).data('stok');
-
-            console.log(id, kerupuk, qty, barang, satuan, stok);
-
-            var subtotal = satuan * qty;
-
-            $('#edit-id').val(id);
-            $('.edit-qty').val(qty);
-            $('#edit-satuan').val(satuan);
-            $('#edit-subtotal').val(subtotal);
-            $('#edit-kerupukID').val(kerupuk);
-            $('#edit-nama_barang').val(barang);
-
-            $('.edit-qty').attr('max', stok);
-
-            console.log('ID Transaksi : ', $('#edit-id').val())
-            console.log('ID Kerupuk : ', $('#edit-kerupukID').val())
-            console.log('QTY : ', $('.edit-qty').val())
-            console.log('Nama Kerupuk : ', $('#edit-nama_barang').val())
-
-            $('.edit-qty').on('input', function() {
-            var qtyValue = $(this).val();
-            var maxQty = parseInt($(this).attr('max'));
-
-            // Ensure qty is between 0 and maxQty (stock)
-            qtyValue = parseInt(qtyValue);
-
-            if (isNaN(qtyValue) || qtyValue < 1) {
-                qtyValue = 1;
-            } else if (qtyValue > maxQty) {
-                qtyValue = maxQty;
-            }
-
-            $(this).val(qtyValue);
-            console.log('Qty:', qtyValue);
-            updateSubtotal();
-            });
-
-            function updateSubtotal() {
-                var newQty = parseInt($('.edit-qty').val()) || 1;
-
-                newQty = Math.max(newQty, 1);
-
-                var newSubtotal = satuan * newQty;
-                console.log('New Subtotal:', newSubtotal);
-                $('#edit-subtotal').val(newSubtotal);
-            }
-
-            // function updateStok() {
-            //     var newQty = parseInt($('.edit-qty').val()) || 0;
-            //     var newStok = newQty - qty;
-            //     console.log('QTY selisih = ', newStok)
-            // }
-        });
-    });
-</script>
 
 <div class="modal fade" id="transaksiModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -148,7 +105,7 @@
                                 <option>Pilih Barang</option>
                                 @foreach ($kerupuk as $item)
                                     @if ($item->stok > 0)
-                                        <option value="{{ $item->kerupukID }}" data-harga="{{ $item->harga_jual }}" data-stok="{{ $item->stok }}" data-barang="{{ $item->nama_barang }}">
+                                        <option value="{{ $item->kerupukID }}" data-harga="{{ $item->harga_jual }}" data-beli="{{ $item->harga_beli }}" data-stok="{{ $item->stok }}" data-barang="{{ $item->nama_barang }}">
                                             {{ $item->nama_barang }} - {{ $item->stok }}
                                         </option>
                                     @elseif($item->stok == 0)
@@ -161,6 +118,7 @@
                         </div>
                     </div>
                     <input type="hidden" class="form-control" aria-describedby="basic-addon1" id="nama_barang" name="nama_barang" readonly>
+                    <input type="hidden" class="form-control" aria-describedby="basic-addon1" id="modal" name="modal" readonly>
                     <div class="mb-3">
                         <label for="harga jual" class="col-form-label">Harga Jual</label>
                         <div class="input-group mb-3">
@@ -172,7 +130,7 @@
                     <div class="mb-3">
                         <label for="qty" class="col-form-label">QTY</label>
                         <div class="input-group mb-3">
-                            <input type="number" class="form-control" name="qty" id="qty" required min="1">
+                            <input type="number" class="form-control" name="qty" id="qty" min="0">
                         </div>
                     </div>
                     <div class="mb-3">
@@ -209,6 +167,7 @@
                         <label for="nama barang" class="col-form-label">Nama Barang</label>
                         <input type="text" name="nama_barang" class="form-control" aria-describedby="basic-addon1" id="edit-nama_barang" readonly>
                     </div>
+                    <input type="number" name="modal" class="form-control edit-modal" aria-describedby="basic-addon1" readonly>
                     <div class="mb-3">
                         <label for="harga jual" class="col-form-label">Harga Jual</label>
                         <div class="input-group mb-3">
@@ -219,7 +178,7 @@
                     <div class="mb-3">
                         <label for="qty" class="col-form-label">QTY</label>
                         <div class="input-group mb-3">
-                            <input type="number" class="form-control edit-qty" name="qty" id="qty" required min="0">
+                            <input type="number" class="form-control edit-qty" name="qty" id="qty" gt="0">
                         </div>
                     </div>
                     <div class="mb-3">
@@ -238,6 +197,64 @@
         </div>
     </div>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $(document).on('click', '.btn-edit', function() {
+            var id = $(this).data('id');
+            var kerupuk = $(this).data('kerupuk');
+            var qty = $(this).data('qty');
+            var barang = $(this).data('barang');
+            var satuan = $(this).data('satuan');
+            var stok = $(this).data('stok');
+            var modal = $(this).data('modal');
+
+            console.log(id, kerupuk, qty, barang, satuan, stok, modal);
+
+            var subtotal = satuan * qty;
+
+            $('#edit-id').val(id);
+            $('.edit-qty').val(qty);
+            $('#edit-satuan').val(satuan);
+            $('#edit-subtotal').val(subtotal);
+            $('#edit-kerupukID').val(kerupuk);
+            $('#edit-nama_barang').val(barang);
+            $('.edit-modal').val(modal);
+
+            $('.edit-qty').attr('max', stok);
+
+            console.log('ID Transaksi : ', $('#edit-id').val())
+            console.log('ID Kerupuk : ', $('#edit-kerupukID').val())
+            console.log('QTY : ', $('.edit-qty').val())
+            console.log('Nama Kerupuk : ', $('#edit-nama_barang').val())
+            console.log('Modal : ', $('.edit-modal').val())
+
+            $('.edit-qty').on('input', function() {
+            var qtyValue = $(this).val();
+            var maxQty = parseInt($(this).attr('max'));
+
+            qtyValue = parseInt(qtyValue);
+
+            $(this).val(qtyValue);
+            console.log('Qty:', qtyValue);
+            updateSubtotal();
+            });
+
+            function updateSubtotal() {
+                var newQty = parseInt($('.edit-qty').val()) || 0;
+
+                newQty = Math.max(newQty, 0);
+
+                var newSubtotal = satuan * newQty;
+                console.log('New Subtotal:', newSubtotal);
+                $('#edit-subtotal').val(newSubtotal);
+            }
+
+        });
+    });
+</script>
+
 <script>
     $(document).ready(function() {
         $('#transaksiModal').on('hidden.bs.modal', function () {
@@ -246,11 +263,13 @@
             $('#harga_jual').val('');
             $('#qty').val('');
             $('#subtotal').val('');
+            $('#modal').val('');
         });
 
         $('#kerupukSelect').change(function() {
             var selectedOption = $(this).find(':selected');
             var harga = parseFloat(selectedOption.data('harga'));
+            var modal = parseFloat(selectedOption.data('beli'));
             var barang = selectedOption.data('barang');
             var stok = parseInt(selectedOption.data('stok'));
 
@@ -259,6 +278,7 @@
             console.log('Harga:', harga);
             $('#harga_jual').val(harga);
             $('#nama_barang').val(barang);
+            $('#modal').val(modal);
 
             $('#qty').attr('max', stok);
 
@@ -271,12 +291,6 @@
 
             qtyValue = parseInt(qtyValue);
 
-            if (isNaN(qtyValue) || qtyValue < 1) {
-                qtyValue = 1;
-            } else if (qtyValue > maxQty) {
-                qtyValue = maxQty;
-            }
-
             $(this).val(qtyValue);
             console.log('Qty:', qtyValue);
             updateSubtotal();
@@ -286,7 +300,7 @@
             var harga = parseFloat($('#harga_jual').val()) || 0;
             var qty = parseInt($('#qty').val()) || 0;
 
-            qty = Math.max(qty, 1);
+            qty = Math.max(qty, 0);
 
             var subtotal = harga * qty;
             console.log('Subtotal:', subtotal);

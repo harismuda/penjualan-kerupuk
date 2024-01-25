@@ -11,48 +11,106 @@ class TransaksiController extends Controller
 {
     public function transaksi(Request $request)
     {
+        $request->validate([
+            'date' => 'nullable|date',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+        ], [
+            'date.nullable' => 'Tentukan tanggal terlebih dahulu',
+            'start_date.nullable' => 'Tentukan tanggal terlebih dahulu',
+            'end_date.nullable' => 'Tentukan tanggal terlebih dahulu',
+        ]);
+        
+        $currentDate = Carbon::now()->toDateString();
+        
         $kerupuk = Kerupuk::get();
 
-        $currentDate = Carbon::now()->toDateString();
-
-        $selectedDate = $request->input('date', $currentDate);
+        $selectedDate = $request->input('date');
+        $start = $request->input('start_date');
+        $end = $request->input('end_date');
 
         $transaksi = Transaksi::select('*')
-            ->whereDate('transaksi.created_at', $selectedDate)
+            ->where(function ($query) use ($start, $end, $selectedDate, $currentDate) {
+                $query->whereDate('transaksi.created_at', $start)
+                    ->orWhereDate('transaksi.created_at', $end)
+                    ->orWhereDate('transaksi.created_at', $currentDate)
+                    ->orWhereDate('transaksi.created_at', $selectedDate);
+            })
             ->get();
-
-        return view('admin.transaksi', compact('transaksi', 'kerupuk', 'selectedDate'));
+            
+        // if (!$request->has('date') && (!$request->has('start_date') || !$request->has('end_date'))) {
+        //     return redirect()->back()->withErrors(['errors' => 'Tanggal belum ditentukan.'])->withInput();
+        // }
+        return view('admin.transaksi', compact('transaksi', 'kerupuk', 'selectedDate', 'start', 'end', 'currentDate'));
     }
 
+    public function date(Request $request)
+    {
+        $currentDate = Carbon::now()->toDateString();
 
-    public function store_transaksi(Request $request){
+        $kerupuk = Kerupuk::get();
+
+        $selectedDate = $request->input('date');
+        $start = $request->input('start_date');
+        $end = $request->input('end_date');
+
+        $transaksi = Transaksi::select('*')
+        ->where(function ($query) use ($start, $end, $selectedDate, $currentDate) {
+            $query->whereDate('transaksi.created_at', $start)
+                ->orWhereDate('transaksi.created_at', $end)
+                ->orWhereDate('transaksi.created_at', $currentDate)
+                ->orWhereDate('transaksi.created_at', $selectedDate);
+        })
+        ->get();
+        
+        if (!$request->has('date') && (!$request->has('start_date') || !$request->has('end_date'))) {
+            return redirect()->back()->withErrors(['errors' => 'Tanggal belum ditentukan.'])->withInput();
+        }
+    }
+
+    public function store_transaksi(Request $request)
+    {
         $request->validate([
-            'qty' => ['required', 'numeric', 'min:0'],
-        ]);
-
-        Transaksi::insert([
-            'kerupukID' => $request->kerupukID,
-            'nama_barang' => $request->nama_barang,
-            'qty' => $request->qty,
-            'satuan' => $request->satuan,
-            'subtotal' => $request->subtotal,
-            'created_at' => date('Y-m-d H:i:s')
+            'qty' => ['required', 'numeric', 'gt:0'],
+            'nama_barang' => 'required',
+        ], [
+            'nama_barang.required' => 'Pilih barang terlebih dahulu',
+            'qty.required' => 'Qty tidak boleh 0',
+            'qty.numeric' => 'Qty harus berupa angka',
+            'qty.gt' => 'Qty tidak boleh 0',
         ]);
 
         $kerupuk = Kerupuk::find($request->kerupukID);
 
-        if ($kerupuk) {
+        if ($kerupuk && $kerupuk->stok >= $request->qty) {
+            Transaksi::insert([
+                'kerupukID' => $request->kerupukID,
+                'nama_barang' => $request->nama_barang,
+                'qty' => $request->qty,
+                'modal' => $request->modal,
+                'satuan' => $request->satuan,
+                'subtotal' => $request->subtotal,
+                'created_at' => date('Y-m-d H:i:s'),
+            ]);
+
             $kerupuk->stok -= $request->qty;
             $kerupuk->save();
-        }
 
-        return redirect()->back()->with('success', 'Data transaksi berhasil ditambahkan.');
+            return redirect()->back()->with('success', 'Data transaksi berhasil ditambahkan.');
+        } else {
+            return redirect()->back()->withErrors(['errors' => 'Data belum lengkap.'])->withInput();
+        }
     }
+
 
     public function update_transaksi(Request $request)
     {
         $request->validate([
-            'qty' => 'required|numeric',
+            'qty' => ['required', 'numeric', 'gt:0'],
+        ], [
+            'qty.required' => 'Qty tidak boleh 0',
+            'qty.numeric' => 'Qty harus berupa angka',
+            'qty.gt' => 'Qty tidak boleh 0',
         ]);
 
         $transaksi = Transaksi::find($request->id);
@@ -63,6 +121,7 @@ class TransaksiController extends Controller
             'kerupukID' => $request->kerupukID,
             'nama_barang' => $request->nama_barang,
             'qty' => $request->qty,
+            'modal' => $request->modal,
             'satuan' => $request->satuan,
             'subtotal' => $request->subtotal,
             'updated_at' => date('Y-m-d H:i:s')
