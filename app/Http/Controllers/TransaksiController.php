@@ -21,8 +21,6 @@ class TransaksiController extends Controller
             'end_date.nullable' => 'Tentukan tanggal terlebih dahulu',
         ]);
         
-        $currentDate = Carbon::now()->toDateString();
-        
         $kerupuk = Kerupuk::get();
 
         $selectedDate = $request->input('date');
@@ -30,18 +28,21 @@ class TransaksiController extends Controller
         $end = $request->input('end_date');
 
         $transaksi = Transaksi::select('*')
-            ->where(function ($query) use ($start, $end, $selectedDate, $currentDate) {
-                $query->whereDate('transaksi.created_at', $start)
-                    ->orWhereDate('transaksi.created_at', $end)
-                    ->orWhereDate('transaksi.created_at', $currentDate)
-                    ->orWhereDate('transaksi.created_at', $selectedDate);
+            ->when($selectedDate, function ($query) use ($selectedDate) {
+                $query->orWhereDate('transaksi.created_at', $selectedDate);
+            })
+            ->when($start && $end, function ($query) use ($start, $end) {
+                $query->orWhereBetween('transaksi.created_at', [$start, $end]);
+            })
+            ->when(!$selectedDate && !$start && !$end, function ($query) {
+                $query->orWhereDate('transaksi.created_at', Carbon::now()->toDateString());
             })
             ->get();
             
         // if (!$request->has('date') && (!$request->has('start_date') || !$request->has('end_date'))) {
         //     return redirect()->back()->withErrors(['errors' => 'Tanggal belum ditentukan.'])->withInput();
         // }
-        return view('admin.transaksi', compact('transaksi', 'kerupuk', 'selectedDate', 'start', 'end', 'currentDate'));
+        return view('admin.transaksi', compact('transaksi', 'kerupuk', 'selectedDate', 'start', 'end'));
     }
 
     public function date(Request $request)

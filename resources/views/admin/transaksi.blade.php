@@ -14,7 +14,7 @@
                         @elseif (!empty($start) && !empty($end))
                             <h4>Data Transaksi - {{ $start }} To {{ $end }}</h4>
                         @else
-                            <h4>Data Transaksi - {{ $currentDate }}</h4>
+                            <h4>Data Transaksi - Hari ini</h4>
                         @endif
                     </div>
                     <div class="col-md-6 text-end">
@@ -31,7 +31,7 @@
                             @if (!empty($selectedDate))
                                 <input type="date" class="form-control" id="dateFilter" name="date" style="border-radius:20px;" value="{{ $selectedDate }}">
                             @else
-                                <input type="date" class="form-control" id="dateFilter" name="date" style="border-radius:20px;" value="{{ $currentDate }}">
+                                <input type="date" class="form-control" id="dateFilter" name="date" style="border-radius:20px;" value="{{ \Carbon\Carbon::now()->toDateString() }}">
                             @endif
                             <button class="btn btn-primary" type="submit" style="border-radius:20px; margin-right:5px; margin-left:5px;">Search by Transaction Date</button>
                         </div>
