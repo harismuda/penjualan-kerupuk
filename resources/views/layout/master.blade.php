@@ -16,7 +16,9 @@
 <body>
     <div class="side-navbar d-flex justify-content-between flex-wrap flex-column" style="z-index: 1" id="sidebar">
         <ul class="nav flex-column text-white w-100">
-            <h5 class="my-2 nav-link text-white">Penjualan Kerupuk</h5>
+            <center>
+                <img src="{{ asset('desain/img/logo.png') }}" alt="logo" width="200px" style="margin-top:-50px ; margin-bottom:-50px ;" >
+            </center>
             {{-- {{ Auth::user()->name }} --}}
             <a href="{{ url('/dashboar') }}"
                 class="nav-link text-white {{ request()->routeIs('/dashboar') ? 'active' : '' }}">
@@ -56,7 +58,7 @@
     <div class="side-navbar active-nav d-flex justify-content-between flex-wrap flex-column" style="width:auto;" id="sidebarLogo">
         <ul class="nav flex-column text-white w-100 mt-3">
             <a class="nav-link text-white" id="menu-btn2"><iconify-icon icon="ion:menu" width="20px"></iconify-icon></a>
-            <h5 class="my-2 nav-link text-white">PK</h5>
+            <img src="{{ asset('desain/img/logo-1.png') }}" alt="logo" width="50px">
             <a href="{{ url('/dashboar') }}"
                 class="nav-link text-white {{ request()->routeIs('/dashboar') ? 'active' : '' }}">
                 <li>

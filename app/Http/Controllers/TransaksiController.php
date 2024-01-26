@@ -23,9 +23,9 @@ class TransaksiController extends Controller
         
         $kerupuk = Kerupuk::get();
 
-        $selectedDate = $request->input('date');
-        $start = $request->input('start_date');
-        $end = $request->input('end_date');
+        $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : null;
+        $start = $request->input('start_date') ? Carbon::parse($request->input('start_date')) : null;
+        $end = $request->input('end_date') ? Carbon::parse($request->input('end_date')) : null;
 
         $transaksi = Transaksi::select('*')
             ->when($selectedDate, function ($query) use ($selectedDate) {

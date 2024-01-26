@@ -74,21 +74,37 @@
             var stok = $(this).data('stok');
             var gambar = $(this).data('gambar');
 
-            console.log(id, nama, hargaBeli, hargaJual, stok, gambar);
+            var keuntungan = (hargaJual - hargaBeli) / hargaBeli * 100
+
+            console.log(id, nama, hargaBeli, hargaJual, stok, gambar, keuntungan);
 
             $('.harga_beli').val('');
+            $('#update-keuntungan').val('');
 
             $('.harga_beli').on('input', function() {
                 var beli = $(this).val()
                 jual()
             })
 
+            $('#update-keuntungan').on('input', function() {
+                var persen = $(this).val()
+
+                persen = parseInt(persen);
+
+                $(this).val(persen);
+                console.log(persen)
+                jual()
+            })
+
             function jual() {
                 var beli = parseFloat($('.harga_beli').val()) || 0;
-                var jual = beli * 10 / 100 + beli
+                var persen = parseFloat($('#update-keuntungan').val()) || 0;
+                beli = Math.max(beli, 0);
+                persen = Math.max(persen, 0);
 
-                console.log('harga:', jual)
-                $('.harga_jual').val(jual);
+                var jual = beli * persen / 100 + beli
+                $(this).val(jual);
+                $('#edit-harga-jual').val(jual);
             }
 
             $('#edit-stok').on('input', function() {
@@ -109,6 +125,7 @@
 
             $('#edit-id').val(id);
             $('#edit-nama-barang').val(nama);
+            $('#update-keuntungan').val(keuntungan);
             $('#edit-harga-beli').val(hargaBeli);
             $('#edit-harga-jual').val(hargaJual);
             $('#edit-stok').val(stok);
@@ -153,6 +170,7 @@
             });
 
             $('#harga_beli').val('');
+            $('#keuntungan').val('');
 
             $('#harga_beli').on('input', function() {
                 var beli = $(this).val()
@@ -164,11 +182,23 @@
                 jual()
             })
 
+            $('#keuntungan').on('input', function() {
+                var persen = $(this).val()
+
+                persen = parseInt(persen);
+
+                $(this).val(persen);
+                console.log(persen)
+                jual()
+            })
+
             function jual() {
                 var beli = parseFloat($('#harga_beli').val()) || 0;
+                var persen = parseFloat($('#keuntungan').val()) || 0;
                 beli = Math.max(beli, 0);
+                persen = Math.max(persen, 0);
 
-                var jual = beli * 10 / 100 + beli
+                var jual = beli * persen / 100 + beli
 
                 console.log('harga:', jual)
                 $('#harga_jual').val(jual);
@@ -241,6 +271,13 @@
                         </div>
                     </div>
                     <div class="mb-3">
+                        <label class="col-form-label">Keuntungan</label>
+                        <div class="input-group mb-3">
+                            <input type="number" id="keuntungan" class="form-control" aria-describedby="basic-addon1">
+                            <span class="input-group-text" id="basic-addon1">% </span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
                         <label class="col-form-label">Harga Jual:</label>
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="basic-addon1">Rp. </span>
@@ -291,6 +328,15 @@
                             <span class="input-group-text" id="basic-addon1">Rp. </span>
                             <input type="number" class="form-control harga_beli" aria-describedby="basic-addon1"
                                 id="edit-harga-beli" name="harga_beli">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="col-form-label">Keuntungan</label>
+                        <div class="input-group mb-3">
+                            <input type="number" class="form-control" aria-describedby="basic-addon1"
+                            id="update-keuntungan">
+                            <span class="input-group-text" id="basic-addon1">%</span>
                         </div>
                     </div>
 

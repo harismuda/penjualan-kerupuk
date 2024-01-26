@@ -10,9 +10,9 @@
                 <div class="row">
                     <div class="col-md-6 text-start">
                         @if (!empty($selectedDate))
-                            <h4>Data Transaksi - {{ $selectedDate }}</h4>
+                            <h4>Data Transaksi - {{ $selectedDate->format('d F Y') }}</h4>
                         @elseif (!empty($start) && !empty($end))
-                            <h4>Data Transaksi - {{ $start }} To {{ $end }}</h4>
+                            <h4>Data Transaksi ({{ $start->format('d F Y') }} - {{ $end->format('d F Y') }})</h4>
                         @else
                             <h4>Data Transaksi - Hari ini</h4>
                         @endif
@@ -67,9 +67,9 @@
                                 <td>{{ $item->qty }}</td>
                                 <td>Rp. @currency($item->subtotal)</td>
                                 @if($item->updated_at == '')
-                                    <td>{{ DateTime::createFromFormat('Y-m-d H:i:s', $item->created_at)->format('d-m-Y H:i:s') }}</td>
+                                    <td>{{ DateTime::createFromFormat('Y-m-d H:i:s', $item->created_at)->format('d F Y') }}</td>
                                 @else
-                                    <td>{{ DateTime::createFromFormat('Y-m-d H:i:s', $item->updated_at)->format('d-m-Y H:i:s') }}</td>
+                                    <td>{{ DateTime::createFromFormat('Y-m-d H:i:s', $item->updated_at)->format('d F Y') }}</td>
                                 @endif
                                 <td>
                                     <button class="btn btn-warning btn-edit" data-bs-toggle="modal"
