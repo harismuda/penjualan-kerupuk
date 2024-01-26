@@ -32,7 +32,8 @@ class TransaksiController extends Controller
                 $query->orWhereDate('transaksi.created_at', $selectedDate);
             })
             ->when($start && $end, function ($query) use ($start, $end) {
-                $query->orWhereBetween('transaksi.created_at', [$start, $end]);
+                $query->orWhereDate('transaksi.created_at', $start);
+            $query->orWhereDate('transaksi.created_at', $end);
             })
             ->when(!$selectedDate && !$start && !$end, function ($query) {
                 $query->orWhereDate('transaksi.created_at', Carbon::now()->toDateString());
