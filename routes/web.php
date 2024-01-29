@@ -31,7 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 Route::middleware(['auth'])->group(
     function () {
-        Route::get('/dashboar', [AdminController::class, 'index']);
+        Route::get('/dashboard', [AdminController::class, 'index']);
 
         //Activity
         Route::get('/activity', [AdminController::class, 'history']);

@@ -10,12 +10,13 @@
                 <div class="row">
                     <div class="col-md-6 text-start">
                         @if (!empty($selectedDate))
-                            <h4>Data Transaksi - {{ $selectedDate->format('d F Y') }}</h4>
+                            <h4>Data Transaksi - {{ \Carbon\Carbon::parse($selectedDate)->format('d F Y') }}</h4>
                         @elseif (!empty($start) && !empty($end))
-                            <h4>Data Transaksi ({{ $start->format('d F Y') }} - {{ $end->format('d F Y') }})</h4>
+                            <h4>Data Transaksi ({{ \Carbon\Carbon::parse($start)->format('d F Y') }} - {{ \Carbon\Carbon::parse($end)->format('d F Y') }})</h4>
                         @else
                             <h4>Data Transaksi - Hari ini</h4>
                         @endif
+
                     </div>
                     <div class="col-md-6 text-end">
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#transaksiModal">
@@ -334,7 +335,19 @@ $(document).ready(function() {
 
                 console.log('Modified Excel Data:', excelData);
             }
-        }, 'pdf', 'colvis'
+        }, 
+        {
+            extend: 'pdf',
+            text: 'PDF',
+            filename: function () {
+                var currentDate = new Date();
+                var day = ("0" + currentDate.getDate()).slice(-2);
+                var month = ("0" + (currentDate.getMonth() + 1)).slice(-2);
+                var year = currentDate.getFullYear();
+                return 'PenjualanKerupuk_' + year + month + day;
+            }
+        },
+            'colvis'
         ],
         "columns": [
             { "searchable": true },
@@ -347,7 +360,6 @@ $(document).ready(function() {
 
     table.buttons().container().appendTo('#example_wrapper .col-md-6:eq(0)');
 });
-
 </script>
 <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>

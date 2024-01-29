@@ -28,17 +28,18 @@ class TransaksiController extends Controller
         $end = $request->input('end_date') ? Carbon::parse($request->input('end_date')) : null;
 
         $transaksi = Transaksi::select('*')
-            ->when($selectedDate, function ($query) use ($selectedDate) {
-                $query->orWhereDate('transaksi.created_at', $selectedDate);
-            })
-            ->when($start && $end, function ($query) use ($start, $end) {
-                $query->orWhereDate('transaksi.created_at', $start);
-            $query->orWhereDate('transaksi.created_at', $end);
-            })
-            ->when(!$selectedDate && !$start && !$end, function ($query) {
-                $query->orWhereDate('transaksi.created_at', Carbon::now()->toDateString());
-            })
-            ->get();
+        ->when($selectedDate, function ($query) use ($selectedDate) {
+            $query->whereDate('created_at', $selectedDate);
+        })
+        ->when($start && $end, function ($query) use ($start, $end) {
+            $query->where('created_at', '>=', $start)
+                ->where('created_at', '<', Carbon::parse($end)->addDay());
+        })
+        ->when(!$selectedDate && !$start && !$end, function ($query) {
+            $query->whereDate('created_at', Carbon::now()->toDateString());
+        })
+        ->get();
+
             
         // if (!$request->has('date') && (!$request->has('start_date') || !$request->has('end_date'))) {
         //     return redirect()->back()->withErrors(['errors' => 'Tanggal belum ditentukan.'])->withInput();

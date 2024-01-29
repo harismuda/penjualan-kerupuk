@@ -20,8 +20,8 @@
                 <img src="{{ asset('desain/img/logo.png') }}" alt="logo" width="200px" style="margin-top:-50px ; margin-bottom:-50px ;" >
             </center>
             {{-- {{ Auth::user()->name }} --}}
-            <a href="{{ url('/dashboar') }}"
-                class="nav-link text-white {{ request()->routeIs('/dashboar') ? 'active' : '' }}">
+            <a href="{{ url('/dashboard') }}"
+                class="nav-link text-white {{ request()->routeIs('/dashboard') ? 'active' : '' }}">
                 <li>
                     <iconify-icon icon="ion:home"></iconify-icon>
                     <span class="mx-2">Home</span>
@@ -59,8 +59,8 @@
         <ul class="nav flex-column text-white w-100 mt-3">
             <a class="nav-link text-white" id="menu-btn2"><iconify-icon icon="ion:menu" width="20px"></iconify-icon></a>
             <img src="{{ asset('desain/img/logo-1.png') }}" alt="logo" width="50px">
-            <a href="{{ url('/dashboar') }}"
-                class="nav-link text-white {{ request()->routeIs('/dashboar') ? 'active' : '' }}">
+            <a href="{{ url('/dashboard') }}"
+                class="nav-link text-white {{ request()->routeIs('/dashboard') ? 'active' : '' }}">
                 <li>
                     <iconify-icon icon="ion:home" width="20px"></iconify-icon>
                 </li>
