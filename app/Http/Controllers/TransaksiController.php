@@ -143,8 +143,13 @@ class TransaksiController extends Controller
         return redirect()->back()->with('success', 'Data transaksi berhasil diperbarui.');
     }
     public function get_transaksi()
-    {
-        $data = Transaksi::get();
-        return response()->json($data);
-    }
+{
+    // Get transactions for the last 7 days
+    $startDate = Carbon::now()->subDays(6);
+    $endDate = Carbon::now();
+
+    $data = Transaksi::whereBetween('created_at', [$startDate, $endDate])->get();
+
+    return response()->json($data);
+}
 }
