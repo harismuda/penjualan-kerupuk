@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     data: {
                         labels: labels,
                         datasets: [{
-                            label: 'Penjualan 7 hari terakhir',
+                            label: 'Keuntungan',
                             data: dataValues,
                             backgroundColor: ['red', 'blue', 'yellow', 'purple', 'green', 'pink', 'brown'],
                             hoverBackgroundColor: ['red', 'blue', 'yellow', 'purple', 'green', 'pink', 'brown'],
